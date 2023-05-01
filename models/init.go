@@ -4,7 +4,6 @@ import (
 	"book_management_system_backend/config"
 	"book_management_system_backend/utils"
 	"errors"
-	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -22,7 +21,7 @@ var gormConfig = &gorm.Config{
 		SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
 	},
 	Logger: logger.New(
-		zap.NewStdLog(utils.Logger),
+		utils.StdOutLogger,
 		logger.Config{
 			SlowThreshold:             time.Second,  // 慢 SQL 阈值
 			LogLevel:                  logger.Error, // 日志级别
