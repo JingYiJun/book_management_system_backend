@@ -1,0 +1,296 @@
+basePath: /api
+definitions:
+  account.LoginRequest:
+    properties:
+      password:
+        maxLength: 30
+        minLength: 8
+        type: string
+      username:
+        minLength: 1
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  account.RegisterRequest:
+    properties:
+      avatar:
+        type: string
+      gender:
+        type: string
+      is_admin:
+        default: false
+        type: boolean
+      password:
+        maxLength: 30
+        minLength: 8
+        type: string
+      real_name:
+        type: string
+      staff_id:
+        type: string
+      username:
+        minLength: 1
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  account.UserModifyRequest:
+    properties:
+      avatar:
+        type: string
+      gender:
+        type: string
+      is_admin:
+        default: false
+        type: boolean
+      password:
+        maxLength: 30
+        minLength: 8
+        type: string
+      real_name:
+        type: string
+      staff_id:
+        type: string
+      username:
+        minLength: 1
+        type: string
+    type: object
+  models.User:
+    properties:
+      avatar:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      last_login:
+        type: string
+      real_name:
+        type: string
+      register_time:
+        type: string
+      staff_id:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: jingyijun3104@outlook.com
+    name: JingYiJun
+    url: https://www.jingyijun.xyz
+  description: This is a Book Management System backend for Fudan 2023 midterm Project
+    of Database course.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://swagger.io/terms/
+  title: Book Management System Backend
+  version: 0.0.1
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/account.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Login
+      tags:
+      - Account
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/account.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Register, admin only
+      tags:
+      - Account
+  /users:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: id
+        enum:
+        - id
+        - username
+        - staff_id
+        - register_time
+        - last_login
+        in: query
+        name: order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - default: asc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+      summary: list users, admin only
+      tags:
+      - Account
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: delete a user by id, admin only
+      tags:
+      - Account
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: get a user by id/username/staff_id, admin only
+      tags:
+      - Account
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/account.UserModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: modify a user by id, admin only
+      tags:
+      - Account
+  /users/me:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: delete self
+      tags:
+      - Account
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Get current user
+      tags:
+      - Account
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/account.UserModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: modify current user
+      tags:
+      - Account
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
