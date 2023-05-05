@@ -27,8 +27,8 @@ func InitFiberApp() *fiber.App {
 		DisableStartupMessage: true,
 	})
 
-	apis.RegisterRoutes(app)
 	registerMiddlewares(app)
+	apis.RegisterRoutes(app)
 
 	return app
 }
