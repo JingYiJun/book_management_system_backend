@@ -75,7 +75,7 @@ func ValidateQuery(c *fiber.Ctx, model any) error {
 // ValidateBody supports json only
 func ValidateBody(c *fiber.Ctx, model any) error {
 	body := c.Body()
-	if len(body) == 0 {
+	if len(body) == 0 || string(body) == "{}" {
 		return BadRequest("body is empty")
 	}
 	err := json.Unmarshal(body, model)

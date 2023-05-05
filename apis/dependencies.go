@@ -1,4 +1,4 @@
-package dependencies
+package apis
 
 import (
 	. "book_management_system_backend/models"

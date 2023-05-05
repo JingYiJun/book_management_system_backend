@@ -11,11 +11,12 @@ type Book struct {
 	Title         string     `json:"title" gorm:"not null"`
 	Description   *string    `json:"description"`
 	Author        string     `json:"author" gorm:"not null"`
-	Press         string     `json:"press"`
+	Press         string     `json:"press" gorm:"not null"`
 	PublishedDate *time.Time `json:"published_date"`
 	Cover         *string    `json:"cover"` // cover url or base64, null if not set
-	Price         float64    `json:"price" gorm:"type:numeric(10,2) not null"`
+	Price         *float64   `json:"price" gorm:"type:numeric(10,2)"`
 	Stock         int        `json:"stock" gorm:"default:0;not null"`
+	OnSale        bool       `json:"on_sale" gorm:"default:false;not null"`
 }
 
 type Books []*Book

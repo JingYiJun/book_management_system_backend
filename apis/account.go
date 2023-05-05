@@ -1,7 +1,6 @@
-package account
+package apis
 
 import (
-	"book_management_system_backend/apis/dependencies"
 	"book_management_system_backend/config"
 	. "book_management_system_backend/models"
 	. "book_management_system_backend/utils"
@@ -27,7 +26,7 @@ var (
 // @Router /register [post]
 func Register(c *fiber.Ctx) error {
 	var currentUser User
-	err := dependencies.GetCurrentUser(c, &currentUser)
+	err := GetCurrentUser(c, &currentUser)
 	if err != nil {
 		return err
 	}
@@ -61,7 +60,7 @@ func Register(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	token, err := dependencies.GenerateToken(&user)
+	token, err := GenerateToken(&user)
 	if err != nil {
 		return err
 	}
@@ -109,7 +108,7 @@ func Login(c *fiber.Ctx) error {
 		return ErrInvalidUsernameOrPassword
 	}
 
-	token, err := dependencies.GenerateToken(&user)
+	token, err := GenerateToken(&user)
 	if err != nil {
 		return err
 	}
@@ -137,7 +136,7 @@ func Login(c *fiber.Ctx) error {
 // @Router /users/me [get]
 func GetUserMe(c *fiber.Ctx) error {
 	var user User
-	err := dependencies.GetCurrentUser(c, &user)
+	err := GetCurrentUser(c, &user)
 	if err != nil {
 		return err
 	}
@@ -160,7 +159,7 @@ func GetUserMe(c *fiber.Ctx) error {
 // @Router /users/me [patch]
 func ModifyUserMe(c *fiber.Ctx) error {
 	var user User
-	err := dependencies.GetCurrentUser(c, &user)
+	err := GetCurrentUser(c, &user)
 	if err != nil {
 		return err
 	}
@@ -204,7 +203,7 @@ func ModifyUserMe(c *fiber.Ctx) error {
 // @Router /users/me [delete]
 func DeleteUserMe(c *fiber.Ctx) error {
 	var user User
-	err := dependencies.GetCurrentUser(c, &user)
+	err := GetCurrentUser(c, &user)
 	if err != nil {
 		return err
 	}
@@ -231,7 +230,7 @@ func DeleteUserMe(c *fiber.Ctx) error {
 // @Router /users [get]
 func ListUsers(c *fiber.Ctx) error {
 	var currentUser User
-	err := dependencies.GetCurrentUser(c, &currentUser)
+	err := GetCurrentUser(c, &currentUser)
 	if err != nil {
 		return err
 	}
@@ -264,41 +263,35 @@ func ListUsers(c *fiber.Ctx) error {
 // @Router /users/{id} [get]
 func GetUser(c *fiber.Ctx) error {
 	var currentUser User
-	err := dependencies.GetCurrentUser(c, &currentUser)
-	if err != nil {
+	if err := GetCurrentUser(c, &currentUser); err != nil {
 		return err
 	}
 	if !currentUser.IsAdmin {
 		return Forbidden()
 	}
 
-	key := c.Params("id")
-	if key == "" {
+	value := c.Params("id")
+	if value == "" {
 		return BadRequest()
 	}
 
+	var comparedKeys = []string{"id", "username", "staff_id"}
 	var user User
-	err = DB.First(&user, key).Error
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-		err = DB.First(&user, "username = ?", key).Error
+	for _, key := range comparedKeys {
+		err := DB.Where("? = ?", key, value).First(&user).Error
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
-			err = DB.First(&user, "staff_id = ?", key).Error
-			if err != nil {
-				return err
-			}
+		} else {
+			break
 		}
 	}
 
 	return c.JSON(user)
 }
 
-// ModifyUser godoc
+// ModifyAUser godoc
 // @Summary modify a user by id, admin only
 // @Tags Account
 // @Accept json
@@ -307,9 +300,9 @@ func GetUser(c *fiber.Ctx) error {
 // @Success 200 {object} User
 // @Router /users/{id} [patch]
 // @Param body body UserModifyRequest true "body"
-func ModifyUser(c *fiber.Ctx) error {
+func ModifyAUser(c *fiber.Ctx) error {
 	var currentUser User
-	err := dependencies.GetCurrentUser(c, &currentUser)
+	err := GetCurrentUser(c, &currentUser)
 	if err != nil {
 		return err
 	}
@@ -354,7 +347,7 @@ func ModifyUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// DeleteUser godoc
+// DeleteAUser godoc
 // @Summary delete a user by id, admin only
 // @Tags Account
 // @Accept json
@@ -362,9 +355,9 @@ func ModifyUser(c *fiber.Ctx) error {
 // @Param id path int true "id"
 // @Success 204
 // @Router /users/{id} [delete]
-func DeleteUser(c *fiber.Ctx) error {
+func DeleteAUser(c *fiber.Ctx) error {
 	var currentUser User
-	err := dependencies.GetCurrentUser(c, &currentUser)
+	err := GetCurrentUser(c, &currentUser)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,54 @@
 basePath: /api
 definitions:
-  account.LoginRequest:
+  apis.BookCreateRequest:
+    properties:
+      author:
+        minLength: 1
+        type: string
+      description:
+        type: string
+      isbn:
+        minLength: 1
+        type: string
+      press:
+        minLength: 1
+        type: string
+      price:
+        minimum: 0
+        type: number
+      published_date:
+        type: string
+      title:
+        minLength: 1
+        type: string
+    required:
+    - author
+    - isbn
+    - press
+    - title
+    type: object
+  apis.BookModifyRequest:
+    properties:
+      author:
+        minLength: 1
+        type: string
+      description:
+        type: string
+      on_sale:
+        type: boolean
+      press:
+        minLength: 1
+        type: string
+      price:
+        minimum: 0
+        type: number
+      published_date:
+        type: string
+      title:
+        minLength: 1
+        type: string
+    type: object
+  apis.LoginRequest:
     properties:
       password:
         maxLength: 30
@@ -13,7 +61,32 @@ definitions:
     - password
     - username
     type: object
-  account.RegisterRequest:
+  apis.PurchaseCreateRequest:
+    properties:
+      book_id:
+        minimum: 1
+        type: integer
+      price:
+        minimum: 0
+        type: number
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - book_id
+    - price
+    - quantity
+    type: object
+  apis.PurchaseModifyRequest:
+    properties:
+      price:
+        minimum: 0
+        type: number
+      quantity:
+        minimum: 1
+        type: integer
+    type: object
+  apis.RegisterRequest:
     properties:
       avatar:
         type: string
@@ -37,7 +110,7 @@ definitions:
     - password
     - username
     type: object
-  account.UserModifyRequest:
+  apis.UserModifyRequest:
     properties:
       avatar:
         type: string
@@ -57,6 +130,65 @@ definitions:
       username:
         minLength: 1
         type: string
+    type: object
+  models.Book:
+    properties:
+      author:
+        type: string
+      cover:
+        description: cover url or base64, null if not set
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      isbn:
+        type: string
+      on_sale:
+        type: boolean
+      press:
+        type: string
+      price:
+        type: number
+      published_date:
+        type: string
+      stock:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Purchase:
+    properties:
+      arrived:
+        description: 已付款状态下可收货
+        type: boolean
+      book:
+        $ref: '#/definitions/models.Book'
+      book_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      paid:
+        type: boolean
+      price:
+        type: number
+      quantity:
+        type: integer
+      returned:
+        description: 未付款状态下可退货
+        type: boolean
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
     type: object
   models.User:
     properties:
@@ -94,6 +226,130 @@ info:
   title: Book Management System Backend
   version: 0.0.1
 paths:
+  /books:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: author
+        type: string
+      - default: id
+        enum:
+        - id
+        - isbn
+        - updated_at
+        - created_at
+        - title
+        - author
+        - press
+        - published_date
+        - price
+        - stock
+        in: query
+        name: orderBy
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        name: press
+        type: string
+      - default: asc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      - in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+      summary: List books
+      tags:
+      - Book
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.BookCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Book'
+      summary: Create a book
+      tags:
+      - Book
+  /books/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+      summary: Get a book by id/isbn
+      tags:
+      - Book
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.BookModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+      summary: Modify a book
+      tags:
+      - Book
   /login:
     post:
       consumes:
@@ -104,7 +360,7 @@ paths:
         name: json
         required: true
         schema:
-          $ref: '#/definitions/account.LoginRequest'
+          $ref: '#/definitions/apis.LoginRequest'
       produces:
       - application/json
       responses:
@@ -115,6 +371,178 @@ paths:
       summary: Login
       tags:
       - Account
+  /purchases:
+    get:
+      parameters:
+      - in: query
+        name: bookID
+        type: integer
+      - default: id
+        enum:
+        - id
+        - created_at
+        - updated_at
+        - book_id
+        - user_id
+        in: query
+        name: orderBy
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - default: asc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      - in: query
+        name: userID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Purchase'
+            type: array
+      summary: List purchases
+      tags:
+      - Purchase
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.PurchaseCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Purchase'
+      summary: Create a purchase
+      tags:
+      - Purchase
+  /purchases/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Purchase'
+      summary: Get a purchase by id
+      tags:
+      - Purchase
+    patch:
+      consumes:
+      - application/json
+      description: Modify the quantity or price of a purchase by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.PurchaseModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Purchase'
+      summary: Modify a purchase
+      tags:
+      - Purchase
+  /purchases/{id}/_arrive:
+    post:
+      description: Arrive a purchase by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Purchase'
+      summary: Arrive a purchase
+      tags:
+      - Purchase
+  /purchases/{id}/_pay:
+    post:
+      description: Pay a purchase by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Purchase'
+      summary: Pay a purchase
+      tags:
+      - Purchase
+  /purchases/{id}/_return:
+    post:
+      description: Return a purchase by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Purchase'
+      summary: Return a purchase
+      tags:
+      - Purchase
   /register:
     post:
       consumes:
@@ -125,7 +553,7 @@ paths:
         name: json
         required: true
         schema:
-          $ref: '#/definitions/account.RegisterRequest'
+          $ref: '#/definitions/apis.RegisterRequest'
       produces:
       - application/json
       responses:
@@ -149,7 +577,7 @@ paths:
         - register_time
         - last_login
         in: query
-        name: order_by
+        name: orderBy
         type: string
       - in: query
         minimum: 1
@@ -232,7 +660,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/account.UserModifyRequest'
+          $ref: '#/definitions/apis.UserModifyRequest'
       produces:
       - application/json
       responses:
@@ -277,7 +705,7 @@ paths:
         name: json
         required: true
         schema:
-          $ref: '#/definitions/account.UserModifyRequest'
+          $ref: '#/definitions/apis.UserModifyRequest'
       produces:
       - application/json
       responses:

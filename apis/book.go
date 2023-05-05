@@ -1,0 +1,154 @@
+package apis
+
+import (
+	. "book_management_system_backend/models"
+	. "book_management_system_backend/utils"
+	"errors"
+	"github.com/gofiber/fiber/v2"
+	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
+)
+
+// ListBooks godoc
+// @Summary List books
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param json query BookListRequest true "query"
+// @Success 200 {array} Book
+// @Router /books [get]
+func ListBooks(c *fiber.Ctx) error {
+	var user User
+	if err := GetCurrentUser(c, &user); err != nil {
+		return err
+	}
+
+	var query BookListRequest
+	if err := ValidateQuery(c, &query); err != nil {
+		return err
+	}
+
+	querySet := query.QuerySet(DB).Order(ToOrderString(query.OrderBy, query.Sort))
+	if query.Title != nil {
+		querySet = querySet.Where("title LIKE ?", "%"+*query.Title+"%")
+	}
+	if query.Author != nil {
+		querySet = querySet.Where("author LIKE ?", "%"+*query.Author+"%")
+	}
+	if query.Press != nil {
+		querySet = querySet.Where("press LIKE ?", "%"+*query.Press+"%")
+	}
+
+	var books []Book
+	if err := querySet.Find(&books).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(books)
+}
+
+// GetABook godoc
+// @Summary Get a book by id/isbn
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {object} Book
+// @Router /books/{id} [get]
+func GetABook(c *fiber.Ctx) error {
+	var user User
+	if err := GetCurrentUser(c, &user); err != nil {
+		return err
+	}
+
+	var comparedKeys = []string{"id", "isbn"}
+
+	value := c.Params("id")
+	if value == "" {
+		return BadRequest()
+	}
+
+	var book Book
+	for _, key := range comparedKeys {
+		err := DB.Where("? = ?", key, value).First(&book).Error
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	return c.JSON(&book)
+}
+
+// CreateABook godoc
+// @Summary Create a book
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param json body BookCreateRequest true "body"
+// @Success 201 {object} Book
+// @Router /books [post]
+func CreateABook(c *fiber.Ctx) error {
+	var user User
+	if err := GetCurrentUser(c, &user); err != nil {
+		return err
+	}
+
+	var body BookCreateRequest
+	if err := ValidateBody(c, &body); err != nil {
+		return err
+	}
+
+	var book Book
+	if err := copier.CopyWithOption(&book, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	if err := DB.Create(&book).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(&book)
+}
+
+// ModifyABook godoc
+// @Summary Modify a book
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id path int true "id"
+// @Param json body BookModifyRequest true "body"
+// @Success 200 {object} Book
+// @Router /books/{id} [patch]
+func ModifyABook(c *fiber.Ctx) error {
+	var user User
+	if err := GetCurrentUser(c, &user); err != nil {
+		return err
+	}
+
+	bookID, err := c.ParamsInt("id")
+	if err != nil {
+		return BadRequest()
+	}
+
+	var book Book
+	if err := DB.Where("id = ?", bookID).First(&book).Error; err != nil {
+		return err
+	}
+
+	var body BookModifyRequest
+	if err := ValidateBody(c, &body); err != nil {
+		return err
+	}
+
+	if err := copier.CopyWithOption(&book, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	if err := DB.Save(&book).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(&book)
+}

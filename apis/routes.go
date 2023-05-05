@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"book_management_system_backend/apis/account"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
 )
@@ -18,5 +17,29 @@ func RegisterRoutes(app *fiber.App) {
 
 	router := app.Group("/api")
 
-	account.RegisterRoutes(router)
+	// user
+	router.Post("/register", Register)
+	router.Post("/login", Login)
+	router.Get("/users/me", GetUserMe)
+	router.Patch("/users/me", ModifyUserMe)
+	router.Delete("/users/me", DeleteUserMe)
+	router.Get("/users", ListUsers)
+	router.Get("/users/:id", GetUser)
+	router.Patch("/users/:id", ModifyAUser)
+	router.Delete("/users/:id", DeleteAUser)
+
+	// book
+	router.Get("/books", ListBooks)
+	router.Get("/books/:id", GetABook)
+	router.Post("/books", CreateABook)
+	router.Patch("/books/:id", ModifyABook)
+
+	// purchase
+	router.Get("/purchases", ListPurchases)
+	router.Get("/purchases/:id", GetAPurchase)
+	router.Post("/purchases", CreateAPurchase)
+	router.Patch("/purchases/:id", ModifyAPurchase)
+	router.Post("/purchases/:id/_pay", PayAPurchase)
+	router.Post("/purchases/:id/_return", ReturnAPurchase)
+	router.Post("/purchases/:id/_arrive", ArriveAPurchase)
 }
