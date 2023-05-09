@@ -1,5 +1,24 @@
 basePath: /api
 definitions:
+  apis.BalanceResponse:
+    properties:
+      balance:
+        type: number
+      change:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: integer
+      info:
+        type: string
+      operation_id:
+        type: integer
+      operation_type:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   apis.BookCreateRequest:
     properties:
       author:
@@ -48,6 +67,40 @@ definitions:
         minLength: 1
         type: string
     type: object
+  apis.BookResponse:
+    properties:
+      author:
+        type: string
+      cover:
+        description: cover url or base64, null if not set
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      isbn:
+        type: string
+      on_sale:
+        type: boolean
+      operator_id:
+        description: user who create the book
+        type: integer
+      press:
+        type: string
+      price:
+        description: 单价, 用 int 表示以分为单位，避免浮点数精度问题
+        type: number
+      published_date:
+        type: string
+      stock:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   apis.LoginRequest:
     properties:
       password:
@@ -86,6 +139,29 @@ definitions:
         minimum: 1
         type: integer
     type: object
+  apis.PurchaseResponse:
+    properties:
+      arrived:
+        type: boolean
+      book_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      paid:
+        type: boolean
+      price:
+        type: number
+      quantity:
+        type: integer
+      returned:
+        type: boolean
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   apis.RegisterRequest:
     properties:
       avatar:
@@ -110,6 +186,37 @@ definitions:
     - password
     - username
     type: object
+  apis.SaleCreateRequest:
+    properties:
+      book_id:
+        minimum: 1
+        type: integer
+      price:
+        type: number
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - book_id
+    - quantity
+    type: object
+  apis.SaleResponse:
+    properties:
+      book_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   apis.UserModifyRequest:
     properties:
       avatar:
@@ -131,65 +238,39 @@ definitions:
         minLength: 1
         type: string
     type: object
-  models.Book:
+  models.Balance:
     properties:
-      author:
-        type: string
-      cover:
-        description: cover url or base64, null if not set
-        type: string
-      created_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      isbn:
-        type: string
-      on_sale:
-        type: boolean
-      press:
-        type: string
-      price:
-        type: number
-      published_date:
-        type: string
-      stock:
-        type: integer
-      title:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  models.Purchase:
-    properties:
-      arrived:
-        description: 已付款状态下可收货
-        type: boolean
-      book:
-        $ref: '#/definitions/models.Book'
-      book_id:
+      change:
+        description: int 表示以分为单位，避免浮点数精度问题
         type: integer
       created_at:
         type: string
       id:
         type: integer
-      paid:
-        type: boolean
-      price:
-        type: number
-      quantity:
+      operation_id:
         type: integer
-      returned:
-        description: 未付款状态下可退货
-        type: boolean
-      updated_at:
+      operation_type:
+        $ref: '#/definitions/models.OperationType'
+      reason:
         type: string
-      user:
-        $ref: '#/definitions/models.User'
+      total:
+        description: allow negative
+        type: integer
       user_id:
         type: integer
     type: object
+  models.OperationType:
+    enum:
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - OperationTypePurchase
+    - OperationTypeSale
+    - OperationTypeManual
+    - OperationTypeInitialize
   models.User:
     properties:
       avatar:
@@ -226,6 +307,101 @@ info:
   title: Book Management System Backend
   version: 0.0.1
 paths:
+  /balances:
+    get:
+      parameters:
+      - in: query
+        name: endTime
+        type: string
+      - default: id
+        enum:
+        - id
+        - created_at
+        - user_id
+        - change
+        in: query
+        name: orderBy
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - description: 'true: positive, false: negative, nil: all'
+        in: query
+        name: positive
+        type: boolean
+      - default: asc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      - in: query
+        name: startTime
+        type: string
+      - in: query
+        name: userID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apis.BalanceResponse'
+            type: array
+      summary: List balances
+      tags:
+      - Balance
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/models.Balance'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/apis.BalanceResponse'
+      summary: Create a balance
+      tags:
+      - Balance
+  /balances/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.BalanceResponse'
+      summary: Get a balance by id
+      tags:
+      - Balance
   /books:
     get:
       consumes:
@@ -280,7 +456,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Book'
+              $ref: '#/definitions/apis.BookResponse'
             type: array
       summary: List books
       tags:
@@ -301,7 +477,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Book'
+            $ref: '#/definitions/apis.BookResponse'
       summary: Create a book
       tags:
       - Book
@@ -321,7 +497,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Book'
+            $ref: '#/definitions/apis.BookResponse'
       summary: Get a book by id/isbn
       tags:
       - Book
@@ -346,7 +522,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Book'
+            $ref: '#/definitions/apis.BookResponse'
       summary: Modify a book
       tags:
       - Book
@@ -415,7 +591,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Purchase'
+              $ref: '#/definitions/apis.PurchaseResponse'
             type: array
       summary: List purchases
       tags:
@@ -436,7 +612,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Purchase'
+            $ref: '#/definitions/apis.PurchaseResponse'
       summary: Create a purchase
       tags:
       - Purchase
@@ -456,7 +632,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Purchase'
+            $ref: '#/definitions/apis.PurchaseResponse'
       summary: Get a purchase by id
       tags:
       - Purchase
@@ -482,7 +658,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Purchase'
+            $ref: '#/definitions/apis.PurchaseResponse'
       summary: Modify a purchase
       tags:
       - Purchase
@@ -501,7 +677,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Purchase'
+            $ref: '#/definitions/apis.PurchaseResponse'
       summary: Arrive a purchase
       tags:
       - Purchase
@@ -520,7 +696,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Purchase'
+            $ref: '#/definitions/apis.PurchaseResponse'
       summary: Pay a purchase
       tags:
       - Purchase
@@ -539,7 +715,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Purchase'
+            $ref: '#/definitions/apis.PurchaseResponse'
       summary: Return a purchase
       tags:
       - Purchase
@@ -564,6 +740,101 @@ paths:
       summary: Register, admin only
       tags:
       - Account
+  /sales:
+    get:
+      parameters:
+      - in: query
+        name: bookID
+        type: integer
+      - in: query
+        name: endTime
+        type: string
+      - default: id
+        enum:
+        - id
+        - created_at
+        - updated_at
+        - book_id
+        - user_id
+        in: query
+        name: orderBy
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - default: asc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort
+        type: string
+      - in: query
+        name: startTime
+        type: string
+      - in: query
+        name: userID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/apis.SaleResponse'
+            type: array
+      summary: List sales
+      tags:
+      - Sale
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.SaleCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/apis.SaleResponse'
+      summary: Create a sale
+      tags:
+      - Sale
+  /sales/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.SaleResponse'
+      summary: Get a sale by id
+      tags:
+      - Sale
   /users:
     get:
       consumes:

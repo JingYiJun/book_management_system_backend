@@ -25,6 +25,150 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/balances": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "List balances",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "endTime",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "id",
+                            "created_at",
+                            "user_id",
+                            "change"
+                        ],
+                        "type": "string",
+                        "default": "id",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_num",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 10,
+                        "type": "integer",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "true: positive, false: negative, nil: all",
+                        "name": "positive",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "startTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "userID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/apis.BalanceResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "Create a balance",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Balance"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/apis.BalanceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/balances/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Balance"
+                ],
+                "summary": "Get a balance by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.BalanceResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/books": {
             "get": {
                 "consumes": [
@@ -103,7 +247,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Book"
+                                "$ref": "#/definitions/apis.BookResponse"
                             }
                         }
                     }
@@ -135,7 +279,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Book"
+                            "$ref": "#/definitions/apis.BookResponse"
                         }
                     }
                 }
@@ -166,7 +310,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Book"
+                            "$ref": "#/definitions/apis.BookResponse"
                         }
                     }
                 }
@@ -204,7 +348,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Book"
+                            "$ref": "#/definitions/apis.BookResponse"
                         }
                     }
                 }
@@ -308,7 +452,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Purchase"
+                                "$ref": "#/definitions/apis.PurchaseResponse"
                             }
                         }
                     }
@@ -340,7 +484,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Purchase"
+                            "$ref": "#/definitions/apis.PurchaseResponse"
                         }
                     }
                 }
@@ -371,7 +515,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Purchase"
+                            "$ref": "#/definitions/apis.PurchaseResponse"
                         }
                     }
                 }
@@ -410,7 +554,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Purchase"
+                            "$ref": "#/definitions/apis.PurchaseResponse"
                         }
                     }
                 }
@@ -439,7 +583,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Purchase"
+                            "$ref": "#/definitions/apis.PurchaseResponse"
                         }
                     }
                 }
@@ -468,7 +612,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Purchase"
+                            "$ref": "#/definitions/apis.PurchaseResponse"
                         }
                     }
                 }
@@ -497,7 +641,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Purchase"
+                            "$ref": "#/definitions/apis.PurchaseResponse"
                         }
                     }
                 }
@@ -531,6 +675,150 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/sales": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sale"
+                ],
+                "summary": "List sales",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "bookID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "endTime",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "id",
+                            "created_at",
+                            "updated_at",
+                            "book_id",
+                            "user_id"
+                        ],
+                        "type": "string",
+                        "default": "id",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_num",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 10,
+                        "type": "integer",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "startTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "userID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/apis.SaleResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sale"
+                ],
+                "summary": "Create a sale",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.SaleCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/apis.SaleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sales/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sale"
+                ],
+                "summary": "Get a sale by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.SaleResponse"
                         }
                     }
                 }
@@ -768,6 +1056,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "apis.BalanceResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "change": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "operation_id": {
+                    "type": "integer"
+                },
+                "operation_type": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "apis.BookCreateRequest": {
             "type": "object",
             "required": [
@@ -835,6 +1152,56 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.BookResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "cover": {
+                    "description": "cover url or base64, null if not set",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isbn": {
+                    "type": "string"
+                },
+                "on_sale": {
+                    "type": "boolean"
+                },
+                "operator_id": {
+                    "description": "user who create the book",
+                    "type": "integer"
+                },
+                "press": {
+                    "type": "string"
+                },
+                "price": {
+                    "description": "单价, 用 int 表示以分为单位，避免浮点数精度问题",
+                    "type": "number"
+                },
+                "published_date": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "apis.LoginRequest": {
             "type": "object",
             "required": [
@@ -888,6 +1255,41 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.PurchaseResponse": {
+            "type": "object",
+            "properties": {
+                "arrived": {
+                    "type": "boolean"
+                },
+                "book_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "paid": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "returned": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "apis.RegisterRequest": {
             "type": "object",
             "required": [
@@ -922,6 +1324,52 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.SaleCreateRequest": {
+            "type": "object",
+            "required": [
+                "book_id",
+                "quantity"
+            ],
+            "properties": {
+                "book_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "apis.SaleResponse": {
+            "type": "object",
+            "properties": {
+                "book_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "apis.UserModifyRequest": {
             "type": "object",
             "properties": {
@@ -952,62 +1400,11 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Book": {
+        "models.Balance": {
             "type": "object",
             "properties": {
-                "author": {
-                    "type": "string"
-                },
-                "cover": {
-                    "description": "cover url or base64, null if not set",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isbn": {
-                    "type": "string"
-                },
-                "on_sale": {
-                    "type": "boolean"
-                },
-                "press": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "published_date": {
-                    "type": "string"
-                },
-                "stock": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Purchase": {
-            "type": "object",
-            "properties": {
-                "arrived": {
-                    "description": "已付款状态下可收货",
-                    "type": "boolean"
-                },
-                "book": {
-                    "$ref": "#/definitions/models.Book"
-                },
-                "book_id": {
+                "change": {
+                    "description": "int 表示以分为单位，避免浮点数精度问题",
                     "type": "integer"
                 },
                 "created_at": {
@@ -1016,29 +1413,38 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "paid": {
-                    "type": "boolean"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "quantity": {
+                "operation_id": {
                     "type": "integer"
                 },
-                "returned": {
-                    "description": "未付款状态下可退货",
-                    "type": "boolean"
+                "operation_type": {
+                    "$ref": "#/definitions/models.OperationType"
                 },
-                "updated_at": {
+                "reason": {
                     "type": "string"
                 },
-                "user": {
-                    "$ref": "#/definitions/models.User"
+                "total": {
+                    "description": "allow negative",
+                    "type": "integer"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
+        },
+        "models.OperationType": {
+            "type": "integer",
+            "enum": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "x-enum-varnames": [
+                "OperationTypePurchase",
+                "OperationTypeSale",
+                "OperationTypeManual",
+                "OperationTypeInitialize"
+            ]
         },
         "models.User": {
             "type": "object",
@@ -1092,6 +1498,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "This is a Book Management System backend for Fudan 2023 midterm Project of Database course.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
