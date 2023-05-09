@@ -113,7 +113,7 @@ Project Link: [https://github.com/JingYiJun/book_management_system_backend](http
 
 [//]: # (https://www.markdownguide.org/basic-syntax/#reference-style-links)
 [contributors-shield]: https://img.shields.io/github/contributors/JingYiJun/book_management_system_backend.svg?style=for-the-badge
-[contributors-url]: https://github.com/OpenTreeHole/treehole_next/graphs/contributors
+[contributors-url]: https://github.com/JingYiJun/book_management_system_backend/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/JingYiJun/book_management_system_backend.svg?style=for-the-badge
 [forks-url]: https://github.com/JingYiJun/book_management_system_backend/network/members
 [stars-shield]: https://img.shields.io/github/stars/JingYiJun/book_management_system_backend.svg?style=for-the-badge

@@ -59,7 +59,7 @@ func InitDB() {
 
 		firstUser = User{
 			Username:       "admin",
-			HashedPassword: utils.MakePassword("admin"),
+			HashedPassword: utils.MakePassword("adminadmin"),
 			IsAdmin:        true,
 		}
 
