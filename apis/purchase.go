@@ -13,7 +13,7 @@ import (
 // @Tags Purchase
 // @Produce json
 // @Param json query PurchaseListRequest true "query"
-// @Success 200 {array} Purchase
+// @Success 200 {array} PurchaseResponse
 // @Router /purchases [get]
 func ListPurchases(c *fiber.Ctx) error {
 	var user User
@@ -39,7 +39,12 @@ func ListPurchases(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(purchases)
+	var purchasesResponse []PurchaseResponse
+	if err := copier.Copy(&purchasesResponse, &purchases); err != nil {
+		return err
+	}
+
+	return c.JSON(purchasesResponse)
 }
 
 // GetAPurchase godoc
@@ -48,7 +53,7 @@ func ListPurchases(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} Purchase
+// @Success 200 {object} PurchaseResponse
 // @Router /purchases/{id} [get]
 func GetAPurchase(c *fiber.Ctx) error {
 	var user User
@@ -61,7 +66,12 @@ func GetAPurchase(c *fiber.Ctx) error {
 		return NotFound()
 	}
 
-	return c.JSON(&purchase)
+	var purchaseResponse PurchaseResponse
+	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
+		return err
+	}
+
+	return c.JSON(&purchaseResponse)
 }
 
 // CreateAPurchase godoc
@@ -70,7 +80,7 @@ func GetAPurchase(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param json body PurchaseCreateRequest true "body"
-// @Success 201 {object} Purchase
+// @Success 201 {object} PurchaseResponse
 // @Router /purchases [post]
 func CreateAPurchase(c *fiber.Ctx) error {
 	var user User
@@ -93,7 +103,12 @@ func CreateAPurchase(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(&purchase)
+	var purchaseResponse PurchaseResponse
+	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(&purchaseResponse)
 }
 
 // ModifyAPurchase godoc
@@ -104,7 +119,7 @@ func CreateAPurchase(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "id"
 // @Param json body PurchaseModifyRequest true "body"
-// @Success 200 {object} Purchase
+// @Success 200 {object} PurchaseResponse
 // @Router /purchases/{id} [patch]
 func ModifyAPurchase(c *fiber.Ctx) error {
 	var user User
@@ -145,7 +160,12 @@ func ModifyAPurchase(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(&purchase)
+	var purchaseResponse PurchaseResponse
+	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
+		return err
+	}
+
+	return c.JSON(&purchaseResponse)
 }
 
 // PayAPurchase godoc
@@ -154,7 +174,7 @@ func ModifyAPurchase(c *fiber.Ctx) error {
 // @Tags Purchase
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} Purchase
+// @Success 200 {object} PurchaseResponse
 // @Router /purchases/{id}/_pay [post]
 func PayAPurchase(c *fiber.Ctx) error {
 	var user User
@@ -184,15 +204,24 @@ func PayAPurchase(c *fiber.Ctx) error {
 			return err
 		}
 
-		// expense
-
-		return nil
+		balance := Balance{
+			UserID:        user.ID,
+			Change:        -purchase.Price * purchase.Quantity,
+			OperationType: OperationTypePurchase,
+			OperationID:   purchase.ID,
+		}
+		return tx.Create(&balance).Error
 	})
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(&purchase)
+	var purchaseResponse PurchaseResponse
+	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
+		return err
+	}
+
+	return c.JSON(&purchaseResponse)
 }
 
 // ReturnAPurchase godoc
@@ -201,7 +230,7 @@ func PayAPurchase(c *fiber.Ctx) error {
 // @Tags Purchase
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} Purchase
+// @Success 200 {object} PurchaseResponse
 // @Router /purchases/{id}/_return [post]
 func ReturnAPurchase(c *fiber.Ctx) error {
 	var user User
@@ -234,7 +263,12 @@ func ReturnAPurchase(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(&purchase)
+	var purchaseResponse PurchaseResponse
+	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
+		return err
+	}
+
+	return c.JSON(&purchaseResponse)
 }
 
 // ArriveAPurchase
@@ -243,7 +277,7 @@ func ReturnAPurchase(c *fiber.Ctx) error {
 // @Tags Purchase
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} Purchase
+// @Success 200 {object} PurchaseResponse
 // @Router /purchases/{id}/_arrive [post]
 func ArriveAPurchase(c *fiber.Ctx) error {
 	var user User
@@ -281,6 +315,11 @@ func ArriveAPurchase(c *fiber.Ctx) error {
 		return nil
 	})
 	if err != nil {
+		return err
+	}
+
+	var purchaseResponse PurchaseResponse
+	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
 		return err
 	}
 

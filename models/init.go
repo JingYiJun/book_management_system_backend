@@ -38,7 +38,7 @@ func InitDB() {
 		panic(err)
 	}
 
-	err = DB.AutoMigrate(User{}, Book{}, UserJwtSecret{})
+	err = DB.AutoMigrate(User{}, Book{}, UserJwtSecret{}, Balance{}, Purchase{}, Sale{})
 	if err != nil {
 		panic(err)
 	}
@@ -64,5 +64,21 @@ func InitDB() {
 		}
 
 		err = DB.Create(&firstUser).Error
+	}
+
+	// initialize balance
+	var firstBalance Balance
+	err = DB.Take(&firstBalance, 1).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			panic(err)
+		}
+
+		firstBalance = Balance{
+			UserID:        firstUser.ID,
+			OperationType: OperationTypeInitialize,
+		}
+
+		err = DB.Create(&firstBalance).Error
 	}
 }

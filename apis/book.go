@@ -15,7 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param json query BookListRequest true "query"
-// @Success 200 {array} Book
+// @Success 200 {array} BookResponse
 // @Router /books [get]
 func ListBooks(c *fiber.Ctx) error {
 	var user User
@@ -44,7 +44,12 @@ func ListBooks(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(books)
+	var booksResponse []BookResponse
+	if err := copier.Copy(&booksResponse, &books); err != nil {
+		return err
+	}
+
+	return c.JSON(booksResponse)
 }
 
 // GetABook godoc
@@ -53,7 +58,7 @@ func ListBooks(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} Book
+// @Success 200 {object} BookResponse
 // @Router /books/{id} [get]
 func GetABook(c *fiber.Ctx) error {
 	var user User
@@ -80,7 +85,12 @@ func GetABook(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(&book)
+	var bookResponse BookResponse
+	if err := copier.Copy(&bookResponse, &book); err != nil {
+		return err
+	}
+
+	return c.JSON(&bookResponse)
 }
 
 // CreateABook godoc
@@ -89,7 +99,7 @@ func GetABook(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param json body BookCreateRequest true "body"
-// @Success 201 {object} Book
+// @Success 201 {object} BookResponse
 // @Router /books [post]
 func CreateABook(c *fiber.Ctx) error {
 	var user User
@@ -110,7 +120,12 @@ func CreateABook(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(&book)
+	var bookResponse BookResponse
+	if err := copier.Copy(&bookResponse, &book); err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(&bookResponse)
 }
 
 // ModifyABook godoc
@@ -120,7 +135,7 @@ func CreateABook(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "id"
 // @Param json body BookModifyRequest true "body"
-// @Success 200 {object} Book
+// @Success 200 {object} BookResponse
 // @Router /books/{id} [patch]
 func ModifyABook(c *fiber.Ctx) error {
 	var user User
@@ -150,5 +165,10 @@ func ModifyABook(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(&book)
+	var bookResponse BookResponse
+	if err := copier.Copy(&bookResponse, &book); err != nil {
+		return err
+	}
+
+	return c.JSON(&bookResponse)
 }

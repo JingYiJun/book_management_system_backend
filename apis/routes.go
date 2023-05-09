@@ -42,4 +42,14 @@ func RegisterRoutes(app *fiber.App) {
 	router.Post("/purchases/:id/_pay", PayAPurchase)
 	router.Post("/purchases/:id/_return", ReturnAPurchase)
 	router.Post("/purchases/:id/_arrive", ArriveAPurchase)
+
+	// balance
+	router.Get("/balances", ListBalances)
+	router.Get("/balances/:id", GetABalance)
+	router.Post("/balances", CreateABalance)
+
+	// sale
+	router.Get("/sales", ListSales)
+	router.Get("/sales/:id", GetASale)
+	router.Post("/sales", CreateASale)
 }
