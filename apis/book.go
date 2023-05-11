@@ -119,6 +119,7 @@ func CreateABook(c *fiber.Ctx) error {
 	if err := copier.CopyWithOption(&book, &body, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
+	book.UserID = user.ID
 	if err := DB.Create(&book).Error; err != nil {
 		return err
 	}
