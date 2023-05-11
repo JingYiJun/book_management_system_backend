@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+func ToOrderString(orderBy string, sort string) string {
+	return orderBy + " " + sort
+}
+
 type UserInfo struct {
 	IsAdmin  bool    `json:"is_admin" default:"false"`
 	Avatar   *string `json:"avatar"`
@@ -36,21 +40,20 @@ type UserModifyRequest struct {
 
 type UserListRequest struct {
 	models.PageRequest
-	OrderBy string `query:"order_by" validate:"oneof=id username staff_id register_time last_login" default:"id"`
-	Sort    string `query:"sort" validate:"oneof=asc desc" default:"asc"`
+	OrderBy string `json:"order_by" query:"order_by" validate:"oneof=id username staff_id register_time last_login" default:"id"`
+	Sort    string `json:"sort" query:"sort" validate:"oneof=asc desc" default:"asc"`
 }
+
+/* Book */
 
 type BookListRequest struct {
 	models.PageRequest
-	OrderBy string  `query:"order_by" validate:"oneof=id isbn updated_at created_at title author press published_date price stock" default:"id"`
-	Sort    string  `query:"sort" validate:"oneof=asc desc" default:"asc"`
-	Title   *string `query:"title"`
-	Author  *string `query:"author"`
-	Press   *string `query:"press"`
-}
-
-func ToOrderString(orderBy string, sort string) string {
-	return orderBy + " " + sort
+	OrderBy string  `json:"order_by" query:"order_by" validate:"oneof=id isbn updated_at created_at title author press published_date price stock" default:"id"`
+	Sort    string  `json:"sort" query:"sort" validate:"oneof=asc desc" default:"asc"`
+	Title   *string `json:"title" query:"title"`
+	Author  *string `json:"author" query:"author"`
+	Press   *string `json:"press" query:"press"`
+	OnSale  *bool   `json:"on_sale" query:"on_sale"`
 }
 
 type BookCreateRequest struct {
@@ -61,6 +64,8 @@ type BookCreateRequest struct {
 	Press         string     `json:"press" validate:"required,min=1"`
 	PublishedDate *time.Time `json:"published_date"`
 	PriceFloat    *float64   `json:"price" validate:"omitempty,min=0"`
+	Cover         *string    `json:"cover"` // cover url or base64, null if not set
+	OnSale        bool       `json:"on_sale" default:"false"`
 }
 
 func (b *BookCreateRequest) Price() *int {
@@ -78,6 +83,7 @@ type BookModifyRequest struct {
 	Press         *string    `json:"press" validate:"omitempty,min=1"`
 	PublishedDate *time.Time `json:"published_date"`
 	PriceFloat    *float64   `json:"price" validate:"omitempty,min=0"`
+	Cover         *string    `json:"cover"` // cover url or base64, null if not set
 	OnSale        *bool      `json:"on_sale"`
 }
 
@@ -93,7 +99,7 @@ type BookResponse struct {
 	ID            int        `json:"id"`
 	CreatedAt     time.Time  `json:"created_at" gorm:"not null"`
 	UpdatedAt     time.Time  `json:"updated_at" gorm:"not null"`
-	OperatorID    int        `json:"operator_id" gorm:"not null"` // user who create the book
+	UserID        int        `json:"user_id" gorm:"not null"` // user who create the book
 	ISBN          string     `json:"isbn" gorm:"not null"`
 	Title         string     `json:"title" gorm:"not null"`
 	Description   *string    `json:"description"`
@@ -110,10 +116,10 @@ type BookResponse struct {
 
 type PurchaseListRequest struct {
 	models.PageRequest
-	OrderBy string `query:"order_by" validate:"oneof=id created_at updated_at book_id user_id" default:"id"`
-	Sort    string `query:"sort" validate:"oneof=asc desc" default:"asc"`
-	BookID  *int   `query:"book_id"`
-	UserID  *int   `query:"user_id"`
+	OrderBy string `json:"order_by" query:"order_by" validate:"oneof=id created_at updated_at book_id user_id" default:"id"`
+	Sort    string `json:"sort" query:"sort" validate:"oneof=asc desc" default:"asc"`
+	BookID  *int   `json:"book_id" query:"book_id"`
+	UserID  *int   `json:"user_id" query:"user_id"`
 }
 
 type PurchaseCreateRequest struct {
@@ -156,12 +162,12 @@ type PurchaseResponse struct {
 
 type BalanceListRequest struct {
 	models.PageRequest
-	OrderBy   string     `query:"order_by" validate:"oneof=id created_at user_id change" default:"id"`
-	Sort      string     `query:"sort" validate:"oneof=asc desc" default:"asc"`
-	UserID    *int       `query:"user_id"`
-	Positive  *bool      `query:"positive"` // true: positive, false: negative, nil: all
-	StartTime *time.Time `query:"start_time"`
-	EndTime   *time.Time `query:"end_time"`
+	OrderBy   string     `json:"order_by" query:"order_by" validate:"oneof=id created_at user_id change" default:"id"`
+	Sort      string     `json:"sort" query:"sort" validate:"oneof=asc desc" default:"asc"`
+	UserID    *int       `json:"user_id" query:"user_id"`
+	Positive  *bool      `json:"positive" query:"positive"` // true: positive, false: negative, nil: all
+	StartTime *time.Time `json:"start_time" query:"start_time"`
+	EndTime   *time.Time `json:"end_time" query:"end_time"`
 }
 
 type BalanceCreateRequest struct {
@@ -188,12 +194,12 @@ type BalanceResponse struct {
 
 type SaleListRequest struct {
 	models.PageRequest
-	OrderBy   string     `query:"order_by" validate:"oneof=id created_at updated_at book_id user_id" default:"id"`
-	Sort      string     `query:"sort" validate:"oneof=asc desc" default:"asc"`
-	BookID    *int       `query:"book_id"`
-	UserID    *int       `query:"user_id"`
-	StartTime *time.Time `query:"start_time"`
-	EndTime   *time.Time `query:"end_time"`
+	OrderBy   string     `json:"order_by" query:"order_by" validate:"oneof=id created_at updated_at book_id user_id" default:"id"`
+	Sort      string     `json:"sort" query:"sort" validate:"oneof=asc desc" default:"asc"`
+	BookID    *int       `json:"book_id" query:"book_id"`
+	UserID    *int       `json:"user_id" query:"user_id"`
+	StartTime *time.Time `json:"start_time" query:"start_time"`
+	EndTime   *time.Time `json:"end_time" query:"end_time"`
 }
 
 type SaleCreateRequest struct {

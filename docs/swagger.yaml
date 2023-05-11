@@ -1,5 +1,14 @@
 basePath: /api
 definitions:
+  apis.BalanceCreateRequest:
+    properties:
+      change:
+        type: number
+      reason:
+        type: string
+    required:
+    - change
+    type: object
   apis.BalanceResponse:
     properties:
       balance:
@@ -24,11 +33,17 @@ definitions:
       author:
         minLength: 1
         type: string
+      cover:
+        description: cover url or base64, null if not set
+        type: string
       description:
         type: string
       isbn:
         minLength: 1
         type: string
+      on_sale:
+        default: false
+        type: boolean
       press:
         minLength: 1
         type: string
@@ -50,6 +65,9 @@ definitions:
     properties:
       author:
         minLength: 1
+        type: string
+      cover:
+        description: cover url or base64, null if not set
         type: string
       description:
         type: string
@@ -84,9 +102,6 @@ definitions:
         type: string
       on_sale:
         type: boolean
-      operator_id:
-        description: user who create the book
-        type: integer
       press:
         type: string
       price:
@@ -100,6 +115,9 @@ definitions:
         type: string
       updated_at:
         type: string
+      user_id:
+        description: user who create the book
+        type: integer
     type: object
   apis.LoginRequest:
     properties:
@@ -238,39 +256,6 @@ definitions:
         minLength: 1
         type: string
     type: object
-  models.Balance:
-    properties:
-      change:
-        description: int 表示以分为单位，避免浮点数精度问题
-        type: integer
-      created_at:
-        type: string
-      id:
-        type: integer
-      operation_id:
-        type: integer
-      operation_type:
-        $ref: '#/definitions/models.OperationType'
-      reason:
-        type: string
-      total:
-        description: allow negative
-        type: integer
-      user_id:
-        type: integer
-    type: object
-  models.OperationType:
-    enum:
-    - 1
-    - 2
-    - 3
-    - 4
-    type: integer
-    x-enum-varnames:
-    - OperationTypePurchase
-    - OperationTypeSale
-    - OperationTypeManual
-    - OperationTypeInitialize
   models.User:
     properties:
       avatar:
@@ -311,7 +296,7 @@ paths:
     get:
       parameters:
       - in: query
-        name: endTime
+        name: end_time
         type: string
       - default: id
         enum:
@@ -320,7 +305,7 @@ paths:
         - user_id
         - change
         in: query
-        name: orderBy
+        name: order_by
         type: string
       - in: query
         minimum: 1
@@ -345,10 +330,10 @@ paths:
         name: sort
         type: string
       - in: query
-        name: startTime
+        name: start_time
         type: string
       - in: query
-        name: userID
+        name: user_id
         type: integer
       produces:
       - application/json
@@ -371,7 +356,7 @@ paths:
         name: json
         required: true
         schema:
-          $ref: '#/definitions/models.Balance'
+          $ref: '#/definitions/apis.BalanceCreateRequest'
       produces:
       - application/json
       responses:
@@ -410,6 +395,9 @@ paths:
       - in: query
         name: author
         type: string
+      - in: query
+        name: on_sale
+        type: boolean
       - default: id
         enum:
         - id
@@ -423,7 +411,7 @@ paths:
         - price
         - stock
         in: query
-        name: orderBy
+        name: order_by
         type: string
       - in: query
         minimum: 1
@@ -551,7 +539,7 @@ paths:
     get:
       parameters:
       - in: query
-        name: bookID
+        name: book_id
         type: integer
       - default: id
         enum:
@@ -561,7 +549,7 @@ paths:
         - book_id
         - user_id
         in: query
-        name: orderBy
+        name: order_by
         type: string
       - in: query
         minimum: 1
@@ -582,7 +570,7 @@ paths:
         name: sort
         type: string
       - in: query
-        name: userID
+        name: user_id
         type: integer
       produces:
       - application/json
@@ -744,10 +732,10 @@ paths:
     get:
       parameters:
       - in: query
-        name: bookID
+        name: book_id
         type: integer
       - in: query
-        name: endTime
+        name: end_time
         type: string
       - default: id
         enum:
@@ -757,7 +745,7 @@ paths:
         - book_id
         - user_id
         in: query
-        name: orderBy
+        name: order_by
         type: string
       - in: query
         minimum: 1
@@ -778,10 +766,10 @@ paths:
         name: sort
         type: string
       - in: query
-        name: startTime
+        name: start_time
         type: string
       - in: query
-        name: userID
+        name: user_id
         type: integer
       produces:
       - application/json
@@ -848,7 +836,7 @@ paths:
         - register_time
         - last_login
         in: query
-        name: orderBy
+        name: order_by
         type: string
       - in: query
         minimum: 1

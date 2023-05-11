@@ -37,7 +37,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "endTime",
+                        "name": "end_time",
                         "in": "query"
                     },
                     {
@@ -49,7 +49,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "default": "id",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query"
                     },
                     {
@@ -85,12 +85,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "name": "startTime",
+                        "name": "start_time",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "name": "userID",
+                        "name": "user_id",
                         "in": "query"
                     }
                 ],
@@ -124,7 +124,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Balance"
+                            "$ref": "#/definitions/apis.BalanceCreateRequest"
                         }
                     }
                 ],
@@ -188,6 +188,11 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "name": "on_sale",
+                        "in": "query"
+                    },
+                    {
                         "enum": [
                             "id",
                             "isbn",
@@ -202,7 +207,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "default": "id",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query"
                     },
                     {
@@ -399,7 +404,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "name": "bookID",
+                        "name": "book_id",
                         "in": "query"
                     },
                     {
@@ -412,7 +417,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "default": "id",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query"
                     },
                     {
@@ -442,7 +447,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "name": "userID",
+                        "name": "user_id",
                         "in": "query"
                     }
                 ],
@@ -692,12 +697,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "name": "bookID",
+                        "name": "book_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endTime",
+                        "name": "end_time",
                         "in": "query"
                     },
                     {
@@ -710,7 +715,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "default": "id",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query"
                     },
                     {
@@ -740,12 +745,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "name": "startTime",
+                        "name": "start_time",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "name": "userID",
+                        "name": "user_id",
                         "in": "query"
                     }
                 ],
@@ -847,7 +852,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "default": "id",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query"
                     },
                     {
@@ -1056,6 +1061,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "apis.BalanceCreateRequest": {
+            "type": "object",
+            "required": [
+                "change"
+            ],
+            "properties": {
+                "change": {
+                    "type": "number"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "apis.BalanceResponse": {
             "type": "object",
             "properties": {
@@ -1098,12 +1117,20 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 1
                 },
+                "cover": {
+                    "description": "cover url or base64, null if not set",
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
                 "isbn": {
                     "type": "string",
                     "minLength": 1
+                },
+                "on_sale": {
+                    "type": "boolean",
+                    "default": false
                 },
                 "press": {
                     "type": "string",
@@ -1128,6 +1155,10 @@ const docTemplate = `{
                 "author": {
                     "type": "string",
                     "minLength": 1
+                },
+                "cover": {
+                    "description": "cover url or base64, null if not set",
+                    "type": "string"
                 },
                 "description": {
                     "type": "string"
@@ -1177,10 +1208,6 @@ const docTemplate = `{
                 "on_sale": {
                     "type": "boolean"
                 },
-                "operator_id": {
-                    "description": "user who create the book",
-                    "type": "integer"
-                },
                 "press": {
                     "type": "string"
                 },
@@ -1199,6 +1226,10 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "user_id": {
+                    "description": "user who create the book",
+                    "type": "integer"
                 }
             }
         },
@@ -1399,52 +1430,6 @@ const docTemplate = `{
                     "minLength": 1
                 }
             }
-        },
-        "models.Balance": {
-            "type": "object",
-            "properties": {
-                "change": {
-                    "description": "int 表示以分为单位，避免浮点数精度问题",
-                    "type": "integer"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "operation_id": {
-                    "type": "integer"
-                },
-                "operation_type": {
-                    "$ref": "#/definitions/models.OperationType"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "total": {
-                    "description": "allow negative",
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.OperationType": {
-            "type": "integer",
-            "enum": [
-                1,
-                2,
-                3,
-                4
-            ],
-            "x-enum-varnames": [
-                "OperationTypePurchase",
-                "OperationTypeSale",
-                "OperationTypeManual",
-                "OperationTypeInitialize"
-            ]
         },
         "models.User": {
             "type": "object",

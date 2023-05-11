@@ -61,7 +61,7 @@ func ListBalances(c *fiber.Ctx) error {
 // @Tags Balance
 // @Accept json
 // @Produce json
-// @Param json body Balance true "body"
+// @Param json body BalanceCreateRequest true "body"
 // @Success 201 {object} BalanceResponse
 // @Router /balances [post]
 func CreateABalance(c *fiber.Ctx) error {

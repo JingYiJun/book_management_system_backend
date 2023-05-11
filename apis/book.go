@@ -38,6 +38,9 @@ func ListBooks(c *fiber.Ctx) error {
 	if query.Press != nil {
 		querySet = querySet.Where("press LIKE ?", "%"+*query.Press+"%")
 	}
+	if query.OnSale != nil {
+		querySet = querySet.Where("on_sale = ?", *query.OnSale)
+	}
 
 	var books []Book
 	if err := querySet.Find(&books).Error; err != nil {
