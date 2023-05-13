@@ -226,7 +226,7 @@ func DeleteUserMe(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param page query UserListRequest true "page"
-// @Success 200 {array} User
+// @Success 200 {object} UserListResponse
 // @Router /users [get]
 func ListUsers(c *fiber.Ctx) error {
 	var currentUser User
@@ -244,13 +244,27 @@ func ListUsers(c *fiber.Ctx) error {
 		return err
 	}
 
+	querySet := query.QuerySet(DB).Order(query.OrderBy + " " + query.Sort).Session(&gorm.Session{}) // mark as safe to reuse
+
 	var users []User
-	err = query.QuerySet(DB).Order(query.OrderBy + " " + query.Sort).Find(&users).Error
+	err = querySet.Find(&users).Error
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(users)
+	var pageTotal int64
+	err = querySet.Limit(-1).Offset(-1).Count(&pageTotal).Error
+	if err != nil {
+		return err
+	}
+
+	var response UserListResponse
+	if err := copier.Copy(&response.Users, &users); err != nil {
+		return err
+	}
+	response.PageTotal = int(pageTotal)
+
+	return c.JSON(response)
 }
 
 // GetUser godoc

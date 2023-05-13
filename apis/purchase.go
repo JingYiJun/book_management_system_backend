@@ -13,7 +13,7 @@ import (
 // @Tags Purchase
 // @Produce json
 // @Param json query PurchaseListRequest true "query"
-// @Success 200 {array} PurchaseResponse
+// @Success 200 {object} PurchaseListResponse
 // @Router /purchases [get]
 func ListPurchases(c *fiber.Ctx) error {
 	var user User
@@ -34,17 +34,25 @@ func ListPurchases(c *fiber.Ctx) error {
 		querySet = querySet.Where("user_id = ?", *query.UserID)
 	}
 
+	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
+
 	var purchases []Purchase
 	if err := querySet.Find(&purchases).Error; err != nil {
 		return err
 	}
 
-	var purchasesResponse []PurchaseResponse
-	if err := copier.Copy(&purchasesResponse, &purchases); err != nil {
+	var pageTotal int64
+	if err := querySet.Offset(-1).Limit(-1).Count(&pageTotal).Error; err != nil {
 		return err
 	}
 
-	return c.JSON(purchasesResponse)
+	var response PurchaseListResponse
+	if err := copier.Copy(&response.Purchases, &purchases); err != nil {
+		return err
+	}
+	response.PageTotal = int(pageTotal)
+
+	return c.JSON(response)
 }
 
 // GetAPurchase godoc

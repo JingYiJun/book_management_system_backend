@@ -98,10 +98,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/apis.BalanceResponse"
-                            }
+                            "$ref": "#/definitions/apis.BalanceListResponse"
                         }
                     }
                 }
@@ -250,10 +247,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/apis.BookResponse"
-                            }
+                            "$ref": "#/definitions/apis.BookListResponse"
                         }
                     }
                 }
@@ -455,10 +449,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/apis.PurchaseResponse"
-                            }
+                            "$ref": "#/definitions/apis.PurchaseListResponse"
                         }
                     }
                 }
@@ -758,10 +749,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/apis.SaleResponse"
-                            }
+                            "$ref": "#/definitions/apis.SaleListResponse"
                         }
                     }
                 }
@@ -885,10 +873,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.User"
-                            }
+                            "$ref": "#/definitions/apis.UserListResponse"
                         }
                     }
                 }
@@ -1075,6 +1060,20 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.BalanceListResponse": {
+            "type": "object",
+            "properties": {
+                "balances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.BalanceResponse"
+                    }
+                },
+                "page_total": {
+                    "type": "integer"
+                }
+            }
+        },
         "apis.BalanceResponse": {
             "type": "object",
             "properties": {
@@ -1146,6 +1145,20 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "minLength": 1
+                }
+            }
+        },
+        "apis.BookListResponse": {
+            "type": "object",
+            "properties": {
+                "books": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.BookResponse"
+                    }
+                },
+                "page_total": {
+                    "type": "integer"
                 }
             }
         },
@@ -1273,6 +1286,20 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.PurchaseListResponse": {
+            "type": "object",
+            "properties": {
+                "page_total": {
+                    "type": "integer"
+                },
+                "purchases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.PurchaseResponse"
+                    }
+                }
+            }
+        },
         "apis.PurchaseModifyRequest": {
             "type": "object",
             "properties": {
@@ -1375,6 +1402,20 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.SaleListResponse": {
+            "type": "object",
+            "properties": {
+                "page_total": {
+                    "type": "integer"
+                },
+                "sales": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.SaleResponse"
+                    }
+                }
+            }
+        },
         "apis.SaleResponse": {
             "type": "object",
             "properties": {
@@ -1398,6 +1439,20 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "apis.UserListResponse": {
+            "type": "object",
+            "properties": {
+                "page_total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.UserResponse"
+                    }
                 }
             }
         },
@@ -1428,6 +1483,39 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "minLength": 1
+                }
+            }
+        },
+        "apis.UserResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_admin": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "last_login": {
+                    "type": "string"
+                },
+                "real_name": {
+                    "type": "string"
+                },
+                "register_time": {
+                    "type": "string"
+                },
+                "staff_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

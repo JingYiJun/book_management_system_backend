@@ -5,6 +5,7 @@ import (
 	. "book_management_system_backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
 // ListBalances godoc
@@ -12,7 +13,7 @@ import (
 // @Tags Balance
 // @Produce json
 // @Param json query BalanceListRequest true "query"
-// @Success 200 {array} BalanceResponse
+// @Success 200 {object} BalanceListResponse
 // @Router /balances [get]
 func ListBalances(c *fiber.Ctx) error {
 	var user User
@@ -43,17 +44,25 @@ func ListBalances(c *fiber.Ctx) error {
 		querySet = querySet.Where("created_at <= ?", *query.EndTime)
 	}
 
+	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
+
 	var balances []Balance
 	if err := querySet.Find(&balances).Error; err != nil {
 		return err
 	}
 
-	var balancesResponse []BalanceResponse
-	if err := copier.Copy(&balancesResponse, &balances); err != nil {
+	var pageTotal int64
+	if err := querySet.Offset(-1).Limit(-1).Count(&pageTotal).Error; err != nil {
 		return err
 	}
 
-	return c.JSON(balancesResponse)
+	var response BalanceListResponse
+	if err := copier.Copy(&response.Balances, &balances); err != nil {
+		return err
+	}
+	response.PageTotal = int(pageTotal)
+
+	return c.JSON(response)
 }
 
 // CreateABalance godoc

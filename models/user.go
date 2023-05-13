@@ -2,6 +2,7 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -24,8 +25,6 @@ type UserJwtSecret struct {
 	Secret string `json:"secret" gorm:"size:256"`
 }
 
-type Users []*User
-
-func (user *User) AfterDelete(tx *gorm.DB) error {
-	return tx.Model(&user).Update("username", "deleted_"+user.Username+"_"+time.Now().Format(time.RFC3339)).Error
+func (user *User) BeforeDelete(tx *gorm.DB) error {
+	return tx.Model(&user).Update("username", user.Username+"_d_"+strconv.FormatInt(time.Now().Unix(), 10)).Error
 }

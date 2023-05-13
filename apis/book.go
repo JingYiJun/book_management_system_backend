@@ -15,7 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param json query BookListRequest true "query"
-// @Success 200 {array} BookResponse
+// @Success 200 {object} BookListResponse
 // @Router /books [get]
 func ListBooks(c *fiber.Ctx) error {
 	var user User
@@ -42,17 +42,25 @@ func ListBooks(c *fiber.Ctx) error {
 		querySet = querySet.Where("on_sale = ?", *query.OnSale)
 	}
 
+	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
+
 	var books []Book
 	if err := querySet.Find(&books).Error; err != nil {
 		return err
 	}
 
-	var booksResponse []BookResponse
-	if err := copier.Copy(&booksResponse, &books); err != nil {
+	var pageTotal int64
+	if err := querySet.Offset(-1).Limit(-1).Count(&pageTotal).Error; err != nil {
 		return err
 	}
 
-	return c.JSON(booksResponse)
+	var response BookListResponse
+	if err := copier.Copy(&response.Books, &books); err != nil {
+		return err
+	}
+	response.PageTotal = int(pageTotal)
+
+	return c.JSON(response)
 }
 
 // GetABook godoc

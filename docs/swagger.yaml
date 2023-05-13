@@ -9,6 +9,15 @@ definitions:
     required:
     - change
     type: object
+  apis.BalanceListResponse:
+    properties:
+      balances:
+        items:
+          $ref: '#/definitions/apis.BalanceResponse'
+        type: array
+      page_total:
+        type: integer
+    type: object
   apis.BalanceResponse:
     properties:
       balance:
@@ -60,6 +69,15 @@ definitions:
     - isbn
     - press
     - title
+    type: object
+  apis.BookListResponse:
+    properties:
+      books:
+        items:
+          $ref: '#/definitions/apis.BookResponse'
+        type: array
+      page_total:
+        type: integer
     type: object
   apis.BookModifyRequest:
     properties:
@@ -148,6 +166,15 @@ definitions:
     - price
     - quantity
     type: object
+  apis.PurchaseListResponse:
+    properties:
+      page_total:
+        type: integer
+      purchases:
+        items:
+          $ref: '#/definitions/apis.PurchaseResponse'
+        type: array
+    type: object
   apis.PurchaseModifyRequest:
     properties:
       price:
@@ -218,6 +245,15 @@ definitions:
     - book_id
     - quantity
     type: object
+  apis.SaleListResponse:
+    properties:
+      page_total:
+        type: integer
+      sales:
+        items:
+          $ref: '#/definitions/apis.SaleResponse'
+        type: array
+    type: object
   apis.SaleResponse:
     properties:
       book_id:
@@ -234,6 +270,15 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  apis.UserListResponse:
+    properties:
+      page_total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/apis.UserResponse'
+        type: array
     type: object
   apis.UserModifyRequest:
     properties:
@@ -254,6 +299,28 @@ definitions:
         type: string
       username:
         minLength: 1
+        type: string
+    type: object
+  apis.UserResponse:
+    properties:
+      avatar:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      is_admin:
+        default: false
+        type: boolean
+      last_login:
+        type: string
+      real_name:
+        type: string
+      register_time:
+        type: string
+      staff_id:
+        type: string
+      username:
         type: string
     type: object
   models.User:
@@ -341,9 +408,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/apis.BalanceResponse'
-            type: array
+            $ref: '#/definitions/apis.BalanceListResponse'
       summary: List balances
       tags:
       - Balance
@@ -443,9 +508,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/apis.BookResponse'
-            type: array
+            $ref: '#/definitions/apis.BookListResponse'
       summary: List books
       tags:
       - Book
@@ -578,9 +641,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/apis.PurchaseResponse'
-            type: array
+            $ref: '#/definitions/apis.PurchaseListResponse'
       summary: List purchases
       tags:
       - Purchase
@@ -777,9 +838,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/apis.SaleResponse'
-            type: array
+            $ref: '#/definitions/apis.SaleListResponse'
       summary: List sales
       tags:
       - Sale
@@ -862,9 +921,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
+            $ref: '#/definitions/apis.UserListResponse'
       summary: list users, admin only
       tags:
       - Account

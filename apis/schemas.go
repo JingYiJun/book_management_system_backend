@@ -11,10 +11,10 @@ func ToOrderString(orderBy string, sort string) string {
 
 type UserInfo struct {
 	IsAdmin  bool    `json:"is_admin" default:"false"`
-	Avatar   *string `json:"avatar"`
-	RealName *string `json:"real_name"`
-	Gender   *string `json:"gender"`
-	StaffID  *string `json:"staff_id"`
+	Avatar   *string `json:"avatar,omitempty"`
+	RealName *string `json:"real_name,omitempty"`
+	Gender   *string `json:"gender,omitempty"`
+	StaffID  *string `json:"staff_id,omitempty"`
 }
 
 type LoginRequest struct {
@@ -42,6 +42,19 @@ type UserListRequest struct {
 	models.PageRequest
 	OrderBy string `json:"order_by" query:"order_by" validate:"oneof=id username staff_id register_time last_login" default:"id"`
 	Sort    string `json:"sort" query:"sort" validate:"oneof=asc desc" default:"asc"`
+}
+
+type UserResponse struct {
+	ID           int       `json:"id"`
+	Username     string    `json:"username"`
+	RegisterTime time.Time `json:"register_time"`
+	LastLogin    time.Time `json:"last_login"`
+	UserInfo
+}
+
+type UserListResponse struct {
+	Users     []UserResponse `json:"users"`
+	PageTotal int            `json:"page_total"`
 }
 
 /* Book */
@@ -112,6 +125,11 @@ type BookResponse struct {
 	OnSale        bool       `json:"on_sale" gorm:"default:false;not null"`
 }
 
+type BookListResponse struct {
+	Books     []BookResponse `json:"books"`
+	PageTotal int            `json:"page_total"`
+}
+
 /* Purchase */
 
 type PurchaseListRequest struct {
@@ -158,6 +176,11 @@ type PurchaseResponse struct {
 	Returned   bool      `json:"returned"`
 }
 
+type PurchaseListResponse struct {
+	Purchases []PurchaseResponse `json:"purchases"`
+	PageTotal int                `json:"page_total"`
+}
+
 /* Balance */
 
 type BalanceListRequest struct {
@@ -190,6 +213,11 @@ type BalanceResponse struct {
 	Info          string    `json:"info"`
 }
 
+type BalanceListResponse struct {
+	Balances  []BalanceResponse `json:"balances"`
+	PageTotal int               `json:"page_total"`
+}
+
 /* Sale */
 
 type SaleListRequest struct {
@@ -220,4 +248,9 @@ type SaleResponse struct {
 	UserID     int       `json:"user_id"`
 	Quantity   int       `json:"quantity"`
 	PriceFloat float64   `json:"price"`
+}
+
+type SaleListResponse struct {
+	Sales     []SaleResponse `json:"sales"`
+	PageTotal int            `json:"page_total"`
 }

@@ -5,6 +5,7 @@ import (
 	. "book_management_system_backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
 // ListSales
@@ -12,7 +13,7 @@ import (
 // @Tags Sale
 // @Produce json
 // @Param json query SaleListRequest true "query"
-// @Success 200 {array} SaleResponse
+// @Success 200 {object} SaleListResponse
 // @Router /sales [get]
 func ListSales(c *fiber.Ctx) error {
 	var user User
@@ -40,17 +41,25 @@ func ListSales(c *fiber.Ctx) error {
 		querySet = querySet.Where("created_at <= ?", *query.EndTime)
 	}
 
+	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
+
 	var sales []Sale
 	if err := querySet.Find(&sales).Error; err != nil {
 		return err
 	}
 
-	var salesResponse []SaleResponse
-	if err := copier.Copy(&salesResponse, &sales); err != nil {
+	var pageTotal int64
+	if err := querySet.Offset(-1).Limit(-1).Count(&pageTotal).Error; err != nil {
 		return err
 	}
 
-	return c.JSON(salesResponse)
+	var response SaleListResponse
+	if err := copier.Copy(&response.Sales, &sales); err != nil {
+		return err
+	}
+	response.PageTotal = int(pageTotal)
+
+	return c.JSON(response)
 }
 
 // GetASale
