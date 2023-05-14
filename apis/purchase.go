@@ -42,7 +42,7 @@ func ListPurchases(c *fiber.Ctx) error {
 	}
 
 	var pageTotal int64
-	if err := querySet.Offset(-1).Limit(-1).Count(&pageTotal).Error; err != nil {
+	if err := querySet.Model(&Purchase{}).Offset(-1).Limit(-1).Count(&pageTotal).Error; err != nil {
 		return err
 	}
 

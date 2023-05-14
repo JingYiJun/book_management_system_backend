@@ -253,7 +253,7 @@ func ListUsers(c *fiber.Ctx) error {
 	}
 
 	var pageTotal int64
-	err = querySet.Limit(-1).Offset(-1).Count(&pageTotal).Error
+	err = querySet.Model(&User{}).Limit(-1).Offset(-1).Count(&pageTotal).Error
 	if err != nil {
 		return err
 	}
