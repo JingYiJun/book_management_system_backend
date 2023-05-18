@@ -67,6 +67,8 @@ type BookListRequest struct {
 	Author  *string `json:"author" query:"author"`
 	Press   *string `json:"press" query:"press"`
 	OnSale  *bool   `json:"on_sale" query:"on_sale"`
+	ID      *int    `json:"id" query:"id"`
+	ISBN    *string `json:"isbn" query:"isbn"`
 }
 
 type BookCreateRequest struct {

@@ -166,7 +166,7 @@ func ModifyUserMe(c *fiber.Ctx) error {
 	}
 
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		err = DB.Clauses(LockClause).Take(&user, user.ID).Error
+		err = tx.Clauses(LockClause).Take(&user, user.ID).Error
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func ModifyUserMe(c *fiber.Ctx) error {
 			user.HashedPassword = MakePassword(*body.Password)
 		}
 
-		return DB.Save(&user).Error
+		return tx.Save(&user).Error
 	})
 	if err != nil {
 		return err
@@ -329,7 +329,7 @@ func ModifyAUser(c *fiber.Ctx) error {
 
 	var user User
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		err = DB.Clauses(LockClause).Take(&user, userID).Error
+		err = tx.Clauses(LockClause).Take(&user, userID).Error
 		if err != nil {
 			return err
 		}
@@ -347,7 +347,7 @@ func ModifyAUser(c *fiber.Ctx) error {
 			user.HashedPassword = MakePassword(*body.Password)
 		}
 
-		return DB.Save(&user).Error
+		return tx.Save(&user).Error
 	})
 	if err != nil {
 		return err

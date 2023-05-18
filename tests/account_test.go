@@ -41,7 +41,7 @@ func testRegister(t *testing.T) {
 	assert.Equal(t, "用户名已存在", response["message"])
 }
 
-func testUserMe(t *testing.T) {
+func testGetUserMe(t *testing.T) {
 	var user = User{}
 	superAdminTester.testGet(t, "/api/users/me", 200, nil, &user)
 	assert.Equal(t, "admin", user.Username)
@@ -54,7 +54,31 @@ func testUserMe(t *testing.T) {
 	defaultTester.testGet(t, "/api/users/me", 401, nil, nil)
 }
 
-func testUserList(t *testing.T) {
+func testModifyUserMe(t *testing.T) {
+	var userResponse apis.UserResponse
+	var dbUser User
+
+	// test partial update self
+	superAdminTester.testPatch(t, "/api/users/me", 200, Map{
+		"real_name": "小明",
+		"staff_id":  "s1001",
+		"something": "something",
+	}, &userResponse)
+	assert.Equal(t, "admin", userResponse.Username)
+	assert.Equal(t, true, userResponse.IsAdmin)
+	assert.Equal(t, "小明", userResponse.RealName)
+	assert.Equal(t, "s1001", userResponse.StaffID)
+	DB.First(&dbUser, userResponse.ID)
+	assert.Equal(t, "小明", dbUser.RealName)
+	assert.Equal(t, "s1001", dbUser.StaffID)
+
+	defaultTester.testPatch(t, "/api/users/me", 401, Map{
+		"username": "user",
+		"password": "user",
+	}, nil)
+}
+
+func testListUsers(t *testing.T) {
 	var usersResponse apis.UserListResponse
 	superAdminTester.testGet(t, "/api/users", 200, Map{
 		"page_num":  1,

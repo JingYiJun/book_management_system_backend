@@ -29,17 +29,23 @@ func ListBooks(c *fiber.Ctx) error {
 	}
 
 	querySet := query.QuerySet(DB).Order(ToOrderString(query.OrderBy, query.Sort))
-	if query.Title != nil {
-		querySet = querySet.Where("title LIKE ?", "%"+*query.Title+"%")
-	}
-	if query.Author != nil {
-		querySet = querySet.Where("author LIKE ?", "%"+*query.Author+"%")
-	}
-	if query.Press != nil {
-		querySet = querySet.Where("press LIKE ?", "%"+*query.Press+"%")
-	}
-	if query.OnSale != nil {
-		querySet = querySet.Where("on_sale = ?", *query.OnSale)
+	if query.ID != nil {
+		querySet = querySet.Where("id = ?", *query.ID)
+	} else if query.ISBN != nil {
+		querySet = querySet.Where("isbn = ?", *query.ISBN)
+	} else {
+		if query.Title != nil {
+			querySet = querySet.Where("title LIKE ?", "%"+*query.Title+"%")
+		}
+		if query.Author != nil {
+			querySet = querySet.Where("author LIKE ?", "%"+*query.Author+"%")
+		}
+		if query.Press != nil {
+			querySet = querySet.Where("press LIKE ?", "%"+*query.Press+"%")
+		}
+		if query.OnSale != nil {
+			querySet = querySet.Where("on_sale = ?", *query.OnSale)
+		}
 	}
 
 	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
@@ -94,6 +100,9 @@ func GetABook(c *fiber.Ctx) error {
 		} else {
 			break
 		}
+	}
+	if book.ID == 0 {
+		return NotFound()
 	}
 
 	var bookResponse BookResponse
