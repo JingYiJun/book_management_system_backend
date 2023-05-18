@@ -1290,6 +1290,9 @@ const docTemplate = `{
                 "arrived": {
                     "type": "boolean"
                 },
+                "book": {
+                    "$ref": "#/definitions/apis.BookResponse"
+                },
                 "book_id": {
                     "type": "integer"
                 },
