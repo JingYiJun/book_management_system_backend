@@ -244,13 +244,14 @@ func (s *SaleCreateRequest) Price() int {
 }
 
 type SaleResponse struct {
-	ID         int       `json:"id"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	BookID     int       `json:"book_id"`
-	UserID     int       `json:"user_id"`
-	Quantity   int       `json:"quantity"`
-	PriceFloat float64   `json:"price"`
+	ID         int           `json:"id"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
+	BookID     int           `json:"book_id"`
+	UserID     int           `json:"user_id"`
+	Quantity   int           `json:"quantity"`
+	PriceFloat float64       `json:"price"`
+	Book       *BookResponse `json:"book,omitempty"`
 }
 
 type SaleListResponse struct {

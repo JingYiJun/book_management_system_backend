@@ -1393,6 +1393,9 @@ const docTemplate = `{
         "apis.SaleResponse": {
             "type": "object",
             "properties": {
+                "book": {
+                    "$ref": "#/definitions/apis.BookResponse"
+                },
                 "book_id": {
                     "type": "integer"
                 },

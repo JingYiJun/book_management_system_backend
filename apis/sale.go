@@ -44,7 +44,7 @@ func ListSales(c *fiber.Ctx) error {
 	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
 
 	var sales []Sale
-	if err := querySet.Find(&sales).Error; err != nil {
+	if err := querySet.Preload("Book").Find(&sales).Error; err != nil {
 		return err
 	}
 
@@ -58,6 +58,11 @@ func ListSales(c *fiber.Ctx) error {
 		return err
 	}
 	response.PageTotal = int(pageTotal)
+	for i := range response.Sales {
+		if err := copier.Copy(&response.Sales[i].Book, &sales[i].Book); err != nil {
+			return err
+		}
+	}
 
 	return c.JSON(response)
 }
