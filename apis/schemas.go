@@ -166,16 +166,17 @@ func (p *PurchaseModifyRequest) Price() *int {
 }
 
 type PurchaseResponse struct {
-	ID         int       `json:"id"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	BookID     int       `json:"book_id"`
-	UserID     int       `json:"user_id"`
-	Quantity   int       `json:"quantity"`
-	PriceFloat float64   `json:"price"`
-	Paid       bool      `json:"paid"`
-	Arrived    bool      `json:"arrived"`
-	Returned   bool      `json:"returned"`
+	ID         int           `json:"id"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
+	BookID     int           `json:"book_id"`
+	UserID     int           `json:"user_id"`
+	Quantity   int           `json:"quantity"`
+	PriceFloat float64       `json:"price"`
+	Paid       bool          `json:"paid"`
+	Arrived    bool          `json:"arrived"`
+	Returned   bool          `json:"returned"`
+	Book       *BookResponse `json:"book,omitempty"`
 }
 
 type PurchaseListResponse struct {

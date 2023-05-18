@@ -37,7 +37,7 @@ func ListPurchases(c *fiber.Ctx) error {
 	querySet = querySet.Session(&gorm.Session{}) // mark as safe to reuse
 
 	var purchases []Purchase
-	if err := querySet.Find(&purchases).Error; err != nil {
+	if err := querySet.Preload("Book").Find(&purchases).Error; err != nil {
 		return err
 	}
 
@@ -49,6 +49,11 @@ func ListPurchases(c *fiber.Ctx) error {
 	var response PurchaseListResponse
 	if err := copier.Copy(&response.Purchases, &purchases); err != nil {
 		return err
+	}
+	for i := range response.Purchases {
+		if err := copier.Copy(&response.Purchases[i].Book, &purchases[i].Book); err != nil {
+			return err
+		}
 	}
 	response.PageTotal = int(pageTotal)
 
