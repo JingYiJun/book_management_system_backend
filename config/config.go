@@ -6,8 +6,9 @@ import (
 )
 
 var Config struct {
+	Mode        string  `env:"MODE" envDefault:"dev"`
 	Debug       bool    `env:"DEBUG" envDefault:"false"`
-	PostgresDSN url.URL `env:"POSTGRES_DSN,required"`
+	PostgresDSN url.URL `env:"POSTGRES_DSN"`
 	AppName     string  `env:"APP_NAME" envDefault:"book_management_system"`
 	Hostname    string  `env:"HOSTNAME" envDefault:"localhost"`
 }
@@ -18,3 +19,10 @@ func InitConfig() {
 		panic(err)
 	}
 }
+
+const (
+	ModeTest       = "test"
+	ModeDev        = "dev"
+	ModeProduction = "production"
+	ModeBench      = "bench"
+)

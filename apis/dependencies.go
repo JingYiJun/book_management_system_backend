@@ -8,7 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/thanhpk/randstr"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -59,20 +58,9 @@ func GetCurrentUser(c *fiber.Ctx, user *User) error {
 
 func GenerateToken(user *User) (string, error) {
 	var userJwtSecret UserJwtSecret
-	err := DB.Take(&userJwtSecret, user.ID).Error
+	err := DB.Where(UserJwtSecret{ID: user.ID}).Attrs(UserJwtSecret{Secret: randstr.Base62(32)}).FirstOrCreate(&userJwtSecret).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			userJwtSecret = UserJwtSecret{
-				ID:     user.ID,
-				Secret: randstr.Base62(32),
-			}
-			err = DB.Create(&userJwtSecret).Error
-			if err != nil {
-				return "", err
-			}
-		} else {
-			return "", err
-		}
+		return "", err
 	}
 
 	claims := UserClaims{

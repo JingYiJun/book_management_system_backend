@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
@@ -50,15 +51,16 @@ var OperationTypeMap = map[OperationType]string{
 	OperationTypeInitialize: "初始化",
 }
 
-func (b *Balance) BeforeCreate(tx *gorm.DB) error {
-	var total int
+func (b *Balance) BeforeCreate(tx *gorm.DB) (err error) {
+	var oldBalance Balance
 	// lock the last record
-	if err := tx.Model(&Balance{}).
-		Clauses(LockClause).Order("id desc").Limit(1).
-		Select("total").Scan(&total).Error; err != nil {
+	if err = tx.Clauses(LockClause).Last(&oldBalance).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
 		return err
 	}
 
-	b.Total = total + b.Change
+	b.Total = oldBalance.Total + b.Change
 	return nil
 }

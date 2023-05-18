@@ -3,8 +3,8 @@ package models
 import (
 	"book_management_system_backend/config"
 	"book_management_system_backend/utils"
-	"errors"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
@@ -33,7 +33,14 @@ var gormConfig = &gorm.Config{
 
 func InitDB() {
 	var err error
-	DB, err = gorm.Open(postgres.Open(config.Config.PostgresDSN.String()), gormConfig)
+	switch config.Config.Mode {
+	case config.ModeTest:
+		DB, err = gorm.Open(sqlite.Open("file::memory:"), gormConfig)
+	case config.ModeDev:
+		DB, err = gorm.Open(postgres.Open("data.db"), gormConfig)
+	case config.ModeProduction:
+		DB, err = gorm.Open(postgres.Open(config.Config.PostgresDSN.String()), gormConfig)
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +50,7 @@ func InitDB() {
 		panic(err)
 	}
 
-	if config.Config.Debug {
+	if config.Config.Debug || config.Config.Mode == config.ModeTest {
 		DB = DB.Debug()
 	}
 
@@ -51,34 +58,22 @@ func InitDB() {
 
 	// initialize admin user
 	var firstUser User
-	err = DB.Take(&firstUser, 1).Error
+	err = DB.Where(User{ID: 1}).Attrs(User{
+		Username:       "admin",
+		HashedPassword: utils.MakePassword("adminadmin"),
+		IsAdmin:        true,
+	}).FirstOrCreate(&firstUser).Error
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			panic(err)
-		}
-
-		firstUser = User{
-			Username:       "admin",
-			HashedPassword: utils.MakePassword("adminadmin"),
-			IsAdmin:        true,
-		}
-
-		err = DB.Create(&firstUser).Error
+		panic(err)
 	}
 
 	// initialize balance
 	var firstBalance Balance
-	err = DB.Take(&firstBalance, 1).Error
+	err = DB.Where(Balance{ID: 1}).Attrs(Balance{
+		UserID:        firstUser.ID,
+		OperationType: OperationTypeInitialize,
+	}).FirstOrCreate(&firstBalance).Error
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			panic(err)
-		}
-
-		firstBalance = Balance{
-			UserID:        firstUser.ID,
-			OperationType: OperationTypeInitialize,
-		}
-
-		err = DB.Create(&firstBalance).Error
+		panic(err)
 	}
 }

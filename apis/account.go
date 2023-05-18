@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	ErrInvalidUsernameOrPassword = BadRequest("Invalid username or password")
-	ErrUserAlreadyExist          = BadRequest("User already exist")
+	ErrInvalidUsernameOrPassword = BadRequest("用户名或密码错误")
+	ErrUserAlreadyExist          = BadRequest("用户名已存在")
 )
 
 // Register godoc
@@ -48,18 +48,13 @@ func Register(c *fiber.Ctx) error {
 	}
 	user.HashedPassword = MakePassword(body.Password)
 
-	err = DB.Transaction(func(tx *gorm.DB) error {
-		err = DB.Create(&user).Error
-		if err != nil {
-			if errors.Is(err, gorm.ErrDuplicatedKey) {
-				return ErrUserAlreadyExist
-			}
-		}
-		return err
-	})
-	if err != nil {
-		return err
+	result := DB.Where(User{Username: body.Username}).Attrs(user).FirstOrCreate(&user)
+	if result.Error != nil {
+		return result.Error
+	} else if result.RowsAffected == 0 {
+		return ErrUserAlreadyExist
 	}
+
 	token, err := GenerateToken(&user)
 	if err != nil {
 		return err

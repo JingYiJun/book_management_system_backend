@@ -10,3 +10,5 @@ type PageRequest struct {
 func (q PageRequest) QuerySet(tx *gorm.DB) *gorm.DB {
 	return tx.Offset((q.PageNum - 1) * q.PageSize).Limit(q.PageSize)
 }
+
+type Map map[string]any
