@@ -35,11 +35,15 @@ func InitDB() {
 	var err error
 	switch config.Config.Mode {
 	case config.ModeTest:
+		fallthrough
+	case config.ModeBench:
 		DB, err = gorm.Open(sqlite.Open("file::memory:"), gormConfig)
 	case config.ModeDev:
 		DB, err = gorm.Open(postgres.Open("data.db"), gormConfig)
 	case config.ModeProduction:
 		DB, err = gorm.Open(postgres.Open(config.Config.PostgresDSN.String()), gormConfig)
+	default:
+		panic("unknown mode")
 	}
 	if err != nil {
 		panic(err)

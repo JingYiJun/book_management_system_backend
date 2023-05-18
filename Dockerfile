@@ -25,6 +25,8 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
 ENV TZ=Asia/Shanghai
 
+ENV MODE=production
+
 EXPOSE 8000
 
 ENTRYPOINT ["./app"]
