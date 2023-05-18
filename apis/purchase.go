@@ -202,7 +202,7 @@ func PayAPurchase(c *fiber.Ctx) error {
 
 	var purchase Purchase
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Clauses(LockClause).First(&purchase, purchaseID).Error; err != nil {
+		if err = tx.Clauses(LockClause).First(&purchase, purchaseID).Error; err != nil {
 			return err
 		}
 
@@ -213,7 +213,8 @@ func PayAPurchase(c *fiber.Ctx) error {
 			return BadRequest("Purchase has been returned")
 		}
 
-		if err := tx.Model(&purchase).Update("paid", true).Error; err != nil {
+		purchase.Paid = true
+		if err = tx.Model(&purchase).Update("paid", true).Error; err != nil {
 			return err
 		}
 
@@ -258,26 +259,22 @@ func ReturnAPurchase(c *fiber.Ctx) error {
 
 	var purchase Purchase
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Clauses(LockClause).First(&purchase, purchaseID).Error; err != nil {
+		if err = tx.Clauses(LockClause).First(&purchase, purchaseID).Error; err != nil {
 			return err
 		}
-
 		if purchase.Paid {
 			return BadRequest("Purchase has been paid")
 		}
 
-		if err := tx.Model(&purchase).Updates(fiber.Map{"returned": true, "arrived": false}).Error; err != nil {
-			return err
-		}
-
-		return nil
+		purchase.Returned = true
+		return tx.Model(&purchase).Update("returned", true).Error
 	})
 	if err != nil {
 		return err
 	}
 
 	var purchaseResponse PurchaseResponse
-	if err := copier.Copy(&purchaseResponse, &purchase); err != nil {
+	if err = copier.Copy(&purchaseResponse, &purchase); err != nil {
 		return err
 	}
 
@@ -305,7 +302,7 @@ func ArriveAPurchase(c *fiber.Ctx) error {
 
 	var purchase Purchase
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Clauses(LockClause).Preload("Book").First(&purchase, purchaseID).Error; err != nil {
+		if err = tx.Clauses(LockClause).Preload("Book").First(&purchase, purchaseID).Error; err != nil {
 			return err
 		}
 
@@ -316,16 +313,13 @@ func ArriveAPurchase(c *fiber.Ctx) error {
 			return BadRequest("Purchase has been returned")
 		}
 
-		if err := tx.Model(&purchase).Update("arrived", true).Error; err != nil {
+		purchase.Arrived = true
+		if err = tx.Model(&purchase).Update("arrived", true).Error; err != nil {
 			return err
 		}
 
 		// update book stock
-		if err := tx.Model(&purchase.Book).Update("stock", gorm.Expr("stock + ?", purchase.Quantity)).Error; err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Model(&purchase.Book).Update("stock", gorm.Expr("stock + ?", purchase.Quantity)).Error
 	})
 	if err != nil {
 		return err
