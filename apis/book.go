@@ -3,7 +3,6 @@ package apis
 import (
 	. "book_management_system_backend/models"
 	. "book_management_system_backend/utils"
-	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -67,50 +66,6 @@ func ListBooks(c *fiber.Ctx) error {
 	response.PageTotal = int(pageTotal)
 
 	return c.JSON(response)
-}
-
-// GetABook godoc
-// @Summary Get a book by id/isbn
-// @Tags Book
-// @Accept json
-// @Produce json
-// @Param id path int true "id"
-// @Success 200 {object} BookResponse
-// @Router /books/{id} [get]
-func GetABook(c *fiber.Ctx) error {
-	var user User
-	if err := GetCurrentUser(c, &user); err != nil {
-		return err
-	}
-
-	var comparedKeys = []string{"id", "isbn"}
-
-	value := c.Params("id")
-	if value == "" {
-		return BadRequest()
-	}
-
-	var book Book
-	for _, key := range comparedKeys {
-		err := DB.Where("? = ?", key, value).First(&book).Error
-		if err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return err
-			}
-		} else {
-			break
-		}
-	}
-	if book.ID == 0 {
-		return NotFound()
-	}
-
-	var bookResponse BookResponse
-	if err := copier.Copy(&bookResponse, &book); err != nil {
-		return err
-	}
-
-	return c.JSON(&bookResponse)
 }
 
 // CreateABook godoc

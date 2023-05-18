@@ -66,11 +66,11 @@ func testModifyUserMe(t *testing.T) {
 	}, &userResponse)
 	assert.Equal(t, "admin", userResponse.Username)
 	assert.Equal(t, true, userResponse.IsAdmin)
-	assert.Equal(t, "小明", userResponse.RealName)
-	assert.Equal(t, "s1001", userResponse.StaffID)
+	assert.Equal(t, "小明", *userResponse.RealName)
+	assert.Equal(t, "s1001", *userResponse.StaffID)
 	DB.First(&dbUser, userResponse.ID)
-	assert.Equal(t, "小明", dbUser.RealName)
-	assert.Equal(t, "s1001", dbUser.StaffID)
+	assert.Equal(t, "小明", *dbUser.RealName)
+	assert.Equal(t, "s1001", *dbUser.StaffID)
 
 	defaultTester.testPatch(t, "/api/users/me", 401, Map{
 		"username": "user",

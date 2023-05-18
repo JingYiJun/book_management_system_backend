@@ -8,4 +8,8 @@ func TestAllTests(t *testing.T) {
 	t.Run("testGetUserMe", testGetUserMe)
 	t.Run("testModifyUserMe", testModifyUserMe)
 	t.Run("testListUsers", testListUsers)
+
+	// book
+	t.Run("testCreateABook", testCreateABook)
+	t.Run("testGetABook", testGetABook)
 }

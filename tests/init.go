@@ -1,5 +1,3 @@
 package tests
 
-func init() {
-
-}
+func init() {}

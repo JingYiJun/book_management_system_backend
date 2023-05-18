@@ -30,7 +30,6 @@ func RegisterRoutes(app *fiber.App) {
 
 	// book
 	router.Get("/books", ListBooks)
-	router.Get("/books/:id", GetABook)
 	router.Post("/books", CreateABook)
 	router.Patch("/books/:id", ModifyABook)
 

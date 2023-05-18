@@ -56,16 +56,14 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "name": "page_num",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "maximum": 100,
                         "minimum": 10,
                         "type": "integer",
                         "name": "page_size",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "boolean",
@@ -185,6 +183,16 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "isbn",
+                        "in": "query"
+                    },
+                    {
                         "type": "boolean",
                         "name": "on_sale",
                         "in": "query"
@@ -211,16 +219,14 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "name": "page_num",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "maximum": 100,
                         "minimum": 10,
                         "type": "integer",
                         "name": "page_size",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -285,35 +291,6 @@ const docTemplate = `{
             }
         },
         "/books/{id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Book"
-                ],
-                "summary": "Get a book by id/isbn",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/apis.BookResponse"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "consumes": [
                     "application/json"
@@ -418,16 +395,14 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "name": "page_num",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "maximum": 100,
                         "minimum": 10,
                         "type": "integer",
                         "name": "page_size",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "enum": [
@@ -713,16 +688,14 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "name": "page_num",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "maximum": 100,
                         "minimum": 10,
                         "type": "integer",
                         "name": "page_size",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "enum": [
@@ -847,16 +820,14 @@ const docTemplate = `{
                         "minimum": 1,
                         "type": "integer",
                         "name": "page_num",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "maximum": 100,
                         "minimum": 10,
                         "type": "integer",
                         "name": "page_size",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "enum": [

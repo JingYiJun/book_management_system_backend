@@ -377,13 +377,11 @@ paths:
       - in: query
         minimum: 1
         name: page_num
-        required: true
         type: integer
       - in: query
         maximum: 100
         minimum: 10
         name: page_size
-        required: true
         type: integer
       - description: 'true: positive, false: negative, nil: all'
         in: query
@@ -461,6 +459,12 @@ paths:
         name: author
         type: string
       - in: query
+        name: id
+        type: integer
+      - in: query
+        name: isbn
+        type: string
+      - in: query
         name: on_sale
         type: boolean
       - default: id
@@ -481,13 +485,11 @@ paths:
       - in: query
         minimum: 1
         name: page_num
-        required: true
         type: integer
       - in: query
         maximum: 100
         minimum: 10
         name: page_size
-        required: true
         type: integer
       - in: query
         name: press
@@ -533,25 +535,6 @@ paths:
       tags:
       - Book
   /books/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/apis.BookResponse'
-      summary: Get a book by id/isbn
-      tags:
-      - Book
     patch:
       consumes:
       - application/json
@@ -617,13 +600,11 @@ paths:
       - in: query
         minimum: 1
         name: page_num
-        required: true
         type: integer
       - in: query
         maximum: 100
         minimum: 10
         name: page_size
-        required: true
         type: integer
       - default: asc
         enum:
@@ -811,13 +792,11 @@ paths:
       - in: query
         minimum: 1
         name: page_num
-        required: true
         type: integer
       - in: query
         maximum: 100
         minimum: 10
         name: page_size
-        required: true
         type: integer
       - default: asc
         enum:
@@ -900,13 +879,11 @@ paths:
       - in: query
         minimum: 1
         name: page_num
-        required: true
         type: integer
       - in: query
         maximum: 100
         minimum: 10
         name: page_size
-        required: true
         type: integer
       - default: asc
         enum:
