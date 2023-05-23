@@ -363,6 +363,25 @@ const docTemplate = `{
                 }
             }
         },
+        "/meta": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meta Module"
+                ],
+                "summary": "获取统计信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/apis.MetaInfo"
+                        }
+                    }
+                }
+            }
+        },
         "/purchases": {
             "get": {
                 "produces": [
@@ -1217,6 +1236,17 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.CountByMonth": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "string"
+                }
+            }
+        },
         "apis.LoginRequest": {
             "type": "object",
             "required": [
@@ -1232,6 +1262,44 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "minLength": 1
+                }
+            }
+        },
+        "apis.MetaInfo": {
+            "type": "object",
+            "properties": {
+                "balance_count": {
+                    "type": "integer"
+                },
+                "balance_count_by_month": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.CountByMonth"
+                    }
+                },
+                "book_count": {
+                    "type": "integer"
+                },
+                "purchase_count": {
+                    "type": "integer"
+                },
+                "purchase_count_by_month": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.CountByMonth"
+                    }
+                },
+                "sale_count": {
+                    "type": "integer"
+                },
+                "sale_count_by_month": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.CountByMonth"
+                    }
+                },
+                "user_count": {
+                    "type": "integer"
                 }
             }
         },

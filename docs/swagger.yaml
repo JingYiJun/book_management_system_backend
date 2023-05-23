@@ -137,6 +137,13 @@ definitions:
         description: user who create the book
         type: integer
     type: object
+  apis.CountByMonth:
+    properties:
+      count:
+        type: integer
+      month:
+        type: string
+    type: object
   apis.LoginRequest:
     properties:
       password:
@@ -149,6 +156,31 @@ definitions:
     required:
     - password
     - username
+    type: object
+  apis.MetaInfo:
+    properties:
+      balance_count:
+        type: integer
+      balance_count_by_month:
+        items:
+          $ref: '#/definitions/apis.CountByMonth'
+        type: array
+      book_count:
+        type: integer
+      purchase_count:
+        type: integer
+      purchase_count_by_month:
+        items:
+          $ref: '#/definitions/apis.CountByMonth'
+        type: array
+      sale_count:
+        type: integer
+      sale_count_by_month:
+        items:
+          $ref: '#/definitions/apis.CountByMonth'
+        type: array
+      user_count:
+        type: integer
     type: object
   apis.PurchaseCreateRequest:
     properties:
@@ -585,6 +617,18 @@ paths:
       summary: Login
       tags:
       - Account
+  /meta:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/apis.MetaInfo'
+      summary: 获取统计信息
+      tags:
+      - Meta Module
   /purchases:
     get:
       parameters:
