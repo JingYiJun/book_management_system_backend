@@ -5,6 +5,22 @@ import (
 	"time"
 )
 
+type CountByMonth struct {
+	Month string
+	Count int64
+}
+
+type MetaInfo struct {
+	UserCount            int64          `json:"user_count"`
+	BookCount            int64          `json:"book_count"`
+	PurchaseCount        int64          `json:"purchase_count"`
+	PurchaseCountByMonth []CountByMonth `json:"purchase_count_by_month"`
+	SaleCount            int64          `json:"sale_count"`
+	SaleCountByMonth     []CountByMonth `json:"sale_count_by_month"`
+	BalanceCount         int64          `json:"balance_count"`
+	BalanceCountByMonth  []CountByMonth `json:"balance_count_by_month"`
+}
+
 func ToOrderString(orderBy string, sort string) string {
 	return orderBy + " " + sort
 }

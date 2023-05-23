@@ -17,6 +17,9 @@ func RegisterRoutes(app *fiber.App) {
 
 	router := app.Group("/api")
 
+	// meta
+	router.Get("/meta", GetMeta)
+
 	// user
 	router.Post("/register", Register)
 	router.Post("/login", Login)
