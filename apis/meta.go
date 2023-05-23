@@ -67,5 +67,5 @@ func GetMeta(c *fiber.Ctx) (err error) {
 	`).Scan(&metaInfo.BalanceCountByMonth).Error; err != nil {
 		return
 	}
-	return
+	return c.JSON(metaInfo)
 }
