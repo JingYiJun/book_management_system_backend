@@ -39,7 +39,7 @@ func InitDB() {
 	case config.ModeBench:
 		DB, err = gorm.Open(sqlite.Open("file::memory:"), gormConfig)
 	case config.ModeDev:
-		DB, err = gorm.Open(postgres.Open("data.db"), gormConfig)
+		DB, err = gorm.Open(sqlite.Open("data.db"), gormConfig)
 	case config.ModeProduction:
 		DB, err = gorm.Open(postgres.Open(config.Config.PostgresDSN.String()), gormConfig)
 	default:

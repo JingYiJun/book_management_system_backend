@@ -5,6 +5,7 @@ import (
 	. "book_management_system_backend/models"
 	. "book_management_system_backend/utils"
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -287,7 +288,7 @@ func GetUser(c *fiber.Ctx) error {
 	var comparedKeys = []string{"id", "username", "staff_id"}
 	var user User
 	for _, key := range comparedKeys {
-		err := DB.Where("? = ?", key, value).First(&user).Error
+		err := DB.Where(fmt.Sprintf("%s = ?", key), value).First(&user).Error
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
