@@ -384,8 +384,8 @@ func DeleteAUser(c *fiber.Ctx) error {
 		return Forbidden("Can't delete first admin")
 	}
 
-	var user User
-	err = DB.Delete(&user, userID).Error
+	var user = User{ID: userID}
+	err = DB.Delete(&user).Error
 	if err != nil {
 		return err
 	}
