@@ -37,7 +37,7 @@ func GetMeta(c *fiber.Ctx) (err error) {
 
 	// 统计过去12个月的月份和每个月的销售数量，Postgres 专用
 	if err = DB.Raw(`
-		SELECT to_char(sale_time, 'YYYY-MM') AS month, COUNT(*) AS count
+		SELECT to_char(created_at, 'YYYY-MM') AS month, COUNT(*) AS count
 		FROM sale
 		GROUP BY month
 		ORDER BY month DESC
@@ -48,7 +48,7 @@ func GetMeta(c *fiber.Ctx) (err error) {
 
 	// 统计过去12个月的月份和每个月的购买数量，Postgres 专用
 	if err = DB.Raw(`
-		SELECT to_char(purchase_time, 'YYYY-MM') AS month, COUNT(*) AS count
+		SELECT to_char(created_at, 'YYYY-MM') AS month, COUNT(*) AS count
 		FROM purchase
 		GROUP BY month
 		ORDER BY month DESC
@@ -59,7 +59,7 @@ func GetMeta(c *fiber.Ctx) (err error) {
 
 	// 统计过去12个月的月份和每个月的流水数量，Postgres 专用
 	if err = DB.Raw(`
-		SELECT to_char(time, 'YYYY-MM') AS month, COUNT(*) AS count
+		SELECT to_char(created_at, 'YYYY-MM') AS month, COUNT(*) AS count
 		FROM balance
 		GROUP BY month
 		ORDER BY month DESC
